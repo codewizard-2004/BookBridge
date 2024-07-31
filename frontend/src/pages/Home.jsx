@@ -1,4 +1,4 @@
-import React , {useState} from 'react'
+import React , {useState , useEffect} from 'react'
 
 import Navbar from '../components/Navbar';
 import ButtomNavigation from '../components/ButtomNavigation';
@@ -15,6 +15,12 @@ import useBackground from '../hooks/useBackground';
 import { createTheme } from '@mui/material/styles';
 import Aboutus from '../tabs/Aboutus';
 
+import useAuthStore from "../store/authStore";
+import { collection, doc, getDoc, onSnapshot } from 'firebase/firestore';
+import { firestore } from '../firebase/firebase';
+
+import useUserData from '../hooks/useUserData';
+
 
 
 const Home = () => {
@@ -25,10 +31,14 @@ const Home = () => {
     setValue(newValue);
     console.log(value)
   };
+    
+
+
   return (
     <div className='flex flex-col sm:w-[95vw] w-[99vw] h-screen overflow-x-hidden bg-white rounded-xl opacity-90 shadow-[0_35px_60px_-15px_rgba(0,0,0,0.5)]
     justify-items-start sm:overflow-y-auto overflow-y-scroll'>
       <div id='navbar-container' className='m-0 p-0'>
+        {}
         <Navbar/>
       </div>
         

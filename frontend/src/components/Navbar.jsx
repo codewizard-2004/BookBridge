@@ -1,4 +1,4 @@
-import React, { useState, forwardRef } from 'react'
+import React, { useState, forwardRef, useEffect } from 'react'
 import Person2RoundedIcon from '@mui/icons-material/Person2Rounded';
 import useBackground from '../hooks/useBackground';
 
@@ -9,14 +9,23 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Slide from '@mui/material/Slide';
 import Button  from '@mui/material/Button';
+import {TextField} from '@mui/material';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import './Navbar.css'
 
 import { Menu, MenuItem, IconButton } from '@mui/material';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import { useSignOut } from 'react-firebase-hooks/auth';
-import { auth } from '../firebase/firebase';
+
+import { auth ,firestore } from '../firebase/firebase';
+import { add, format } from 'date-fns';
 import useLogout from '../hooks/useLogout';
+
+import useAuthStore from "../store/authStore";
+import { collection, doc, getDoc, onSnapshot, query, setDoc, where } from 'firebase/firestore';
+import useUserData from '../hooks/useUserData';
+
+
+
 
 
 const Transition = forwardRef(function Transition(props, ref) {
@@ -30,9 +39,17 @@ const Navbar = () => {
   const [check , setChecked] = useState(false);
   const [open, setOpen] = useState(false);
   const [openMore , setOpenMore] = useState(false);
+  const [clickSet , setclickSet] = useState(false); // for set button in address
+  const [address , setAddress] = useState("");
 
-  const handleClickOpen = () => {
+  const {userData , loading , error} = useUserData();
+  const userUID = useAuthStore((state) => state.user);
+
+
+  
+  const handleClickOpen = async() => {
     setOpen(true);
+   
   };
 
   const handleClose = () => {
@@ -59,7 +76,7 @@ const Navbar = () => {
 
   const handleProfileClick = () => {
     // Handle profile click
-    console.log('Profile clicked');
+    
     handleMenuClose();
   };
 
@@ -68,6 +85,42 @@ const Navbar = () => {
     console.log('Logout clicked');
     handleMenuClose();
   };
+
+  const handleClickSet = ()=>{
+    if (!clickSet){
+      setclickSet(true);
+    }
+    else{
+      setclickSet(false);
+    }
+  }
+
+  const handleConfirmAddress = async()=>{
+    console.log(address)
+    const docRef = doc(firestore, 'Users', userUID);
+    try {
+      await setDoc(docRef , {
+        address: address
+      },{ merge: true })
+      console.log("added Successfully")
+    } catch (error) {
+      console.log("Error adding address" , error)
+    }
+    handleClose()
+  }
+
+  const formatDate = (timestamp) => {
+    if (!timestamp) return 'N/A';
+    
+    // Convert Firebase timestamp to JavaScript Date object
+    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+    
+    // Format date to dd-MM-yyyy
+    return format(date, 'dd-MM-yyyy');
+  };
+
+  
+  
 
   const {handleLogout, isLoggingOut} = useLogout()
 
@@ -147,12 +200,36 @@ const Navbar = () => {
                 <DialogTitle>{"Account Details"}</DialogTitle>
                 <DialogContent>
                   <DialogContentText id="alert-dialog-slide-description">
-                     <ul className={`${!isDark?"bg-slate-800":""}`}>
-                      <li className='flex justify-between border-b-2'>Full Name:<span>John Doe</span></li>
-                      <li className='flex justify-between border-b-2'>Username: <span>johndoe</span></li>
-                      <li className='flex justify-between border-b-2'>Joined on: <span>11-9-2001</span></li>
-                      <li className='flex justify-between border-b-2'>Books Donated: <span>68</span></li>
+                     <ul className={``}>
+                      <li className='flex justify-between border-b-2'>Full Name:<span>{loading?<CircularProgress/>:userData.fullname}</span></li>
+                      <li className='flex justify-between border-b-2'>Joined on: <span>{loading?<CircularProgress/>:formatDate(userData.createdAt)}</span></li>
+                      <li className='flex justify-between border-b-2'>Books Donated: <span>{loading?<CircularProgress/>:userData.books.length}</span></li>
+                      <li className='flex justify-between border-b-2'>Address: <span>{loading?<CircularProgress/>:
+                      !userData.address?
+                      <div className='flex gap-1'>
+                        <p>Not Set</p>
+                        <Button variant='contained' onClick={handleClickSet}>Set</Button>
+                      </div>
+                      :<div className='flex gap-1'>
+                      <p>{userData.address}</p>
+                      <Button variant='contained' onClick={handleClickSet}>Change</Button>
+                    </div>
+                      
+                      }</span>
+                      </li>
+                      <li className={`${clickSet?"flex flex-col gap-1":"hidden"}`}>
+                        <TextField id="outlined-basic1" fullWidth multiline rows={3}
+                          label="Enter Your Address" 
+                          variant="outlined"
+                          value={address}
+                          onChange={(e)=>setAddress(e.target.value)}
+                          />
+                        <Button variant='contained' onClick={handleConfirmAddress}>Confirm</Button>
+                        
+                      </li>
+                      
                      </ul>
+
                   </DialogContentText>
                 </DialogContent>
                 <DialogActions>
@@ -203,7 +280,7 @@ const Navbar = () => {
                   >
                     <div id='nav-button-holder-sm' className='sm:hidden flex justify-center gap-10'>
                       < input type="checkbox" id="checkbox" value={openMore} onClick={anchorEl?handleMenuClose:handleMenuOpen}/>
-                          <label for="checkbox" class="toggle">
+                          <label htmlFor="checkbox" className="toggle">
                             <div className="bars" id="bar1"></div>
                             <div className="bars" id="bar2"></div>
                             <div className="bars" id="bar3"></div>

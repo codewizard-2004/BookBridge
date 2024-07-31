@@ -36,8 +36,8 @@ const Signup = () => {
           console.log("user logged in")
           const docRef = doc(firestore, "Users", userCred.user.uid);
           const docSnap = await getDoc(docRef);
-          localStorage.setItem("user-info", JSON.stringify(docSnap.data()));
-          loginUser(docSnap.data());
+          localStorage.setItem("user-info", JSON.stringify(userCred.user.uid));
+          loginUser(userCred.user.uid);
           toast.success("Welcome back")
         }
         else{
@@ -92,7 +92,7 @@ const Signup = () => {
         </form>
 
         <Link to='/signup'>
-          <a className='text-blue-400 mt-1 hover:underline'>New here? Create an account</a>
+          <span className='text-blue-400 mt-1 hover:underline'>New here? Create an account</span>
         </Link>
       </div>
       <div id='image-container' className='w-[50%] rounded-tr-xl rounded-br-xl hidden sm:block '>
