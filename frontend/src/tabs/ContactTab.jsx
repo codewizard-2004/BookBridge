@@ -41,10 +41,10 @@ export const ContactTab = () => {
     }
     const {isDark} = useBackground();
   return (
-    <div className='flex flex-col w-full flex-wrap'>
+    <div className='flex flex-col w-full flex-wrap  overflow-y-visible'>
         <div id='feedback-form' className='flex flex-col items-center justify-center  mt-5 min-w-[50%]'>
             <h1 className={`text-2xl font-semibold ${!isDark?"text-white":""}`}>Your Feedbacks are valuable to us</h1>
-            <form className='flex flex-col w-[60%]' onSubmit={handleSubmit}>
+            <form className='flex flex-col sm:w-[60%] w-[90%]' onSubmit={handleSubmit}>
                 <TextField id="outlined-basic1" fullWidth multiline rows={7}
                     label="Describe your experience using this platform" 
                     value={feedback}
@@ -80,12 +80,13 @@ export const ContactTab = () => {
             </form>
         </div>
         <Toaster/>
+        <h1 className={`mt-5 font-semibold text-2xl ${!isDark?"text-white":""}`}>Contact Our Members</h1>
         <div id='contact-cards' className='flex items-center justify-center mt-5 gap-5 flex-wrap'>
-                <Cards name={"Adinath Manoj Nambiar"} imageLoc='./students/image-3.jpeg'/>
-                <Cards name={"Adinath Manoj Nambiar"} imageLoc='./students/image-3.jpeg'/>
-                <Cards name={"Adinath Manoj Nambiar"} imageLoc='./students/image-3.jpeg'/>
-                <Cards name={"Adinath Manoj Nambiar"} imageLoc='./students/image-3.jpeg'/>
-                <Cards name={"Adinath Manoj Nambiar"} imageLoc='./students/image-3.jpeg'/>
+                <Cards name={"Amal Varghese"}github={"https://github.com/codewizard-2004"} insta={"https://www.instagram.com/4mal_varghese/"} linkedin={"https://www.linkedin.com/in/amal-varghese-670225291/"} />
+                <Cards name={"Pranav Paul"} linkedin={"https://www.linkedin.com/in/pranavpaul/"} insta={"https://www.instagram.com/pranav_paul_/"}/>
+                <Cards name={"Adinath Manoj Nambiar"} linkedin={"https://www.linkedin.com/in/adinath-manoj-nambiar-3b1b75292/"} github={"https://github.com/adinath103"} insta={"https://www.instagram.com/adinath_manoj/"}/>
+                <Cards name={"Alen M Varghese"} linkedin={"https://www.linkedin.com/in/alan-m-varghese-396002280/"} insta={"https://www.instagram.com/al._.xn._/"}/>
+                <Cards name={"Cebin Jimson"} linkedin={"https://www.linkedin.com/in/cebin-jimson-1b93a7289/"} insta={"https://www.instagram.com/callmejimsaa/"}/>
         </div>
     </div>
   )

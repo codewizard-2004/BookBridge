@@ -10,12 +10,9 @@ import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import InstagramIcon from '@mui/icons-material/Instagram';
 
-export default function Cards({name , imageLoc , github , linkedin , insta}) {
+export default function Cards({name , github , linkedin , insta}) {
   return (
-    <div className='flex flex-col items-center justify-center h-[250px] bg-slate-300 rounded-lg hover:border-blue-500' id='main-card-holder'>
-        <div id='image-container' className='w-[100%] h-[80%] flex items-center justify-center'>
-            <img className='h-[100%] rounded-lg' src={imageLoc} alt="" />
-        </div>
+    <div className='flex flex-col items-center justify-center h-[60px] bg-slate-300 rounded-lg hover:scale-105' id='main-card-holder'>
         <h1>{name}</h1>
         <div id='social-container'  className='flex'>
             <Button href={github} target='_blank'><GitHubIcon/></Button>

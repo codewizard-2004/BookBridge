@@ -1,7 +1,6 @@
 import React , {useState , useEffect} from 'react'
 
 import Navbar from '../components/Navbar';
-import ButtomNavigation from '../components/ButtomNavigation';
 import HomeTab from '../tabs/HomeTab';
 import DonateTab from '../tabs/DonateTab';
 
@@ -36,9 +35,8 @@ const Home = () => {
 
   return (
     <div className='flex flex-col sm:w-[95vw] w-[99vw] h-screen overflow-x-hidden bg-white rounded-xl opacity-90 shadow-[0_35px_60px_-15px_rgba(0,0,0,0.5)]
-    justify-items-start sm:overflow-y-auto overflow-y-scroll'>
+    justify-items-start sm:overflow-y-visible overflow-y-scroll'>
       <div id='navbar-container' className='m-0 p-0'>
-        {}
         <Navbar/>
       </div>
         
@@ -68,8 +66,8 @@ const Home = () => {
                       </Tabs>
                 </Box>
         </div>
-        <div id='main-hero-section' className={`${value==1?"":"h-screen"} ${!isDark?"bg-slate-800":""}`}>
-          {value==1?<HomeTab darkmode={true}/>:
+        <div id='main-hero-section' className={`${!isDark?"bg-slate-800":""} h-[200vh] overflow-y-visible`}>
+          {value==1?<HomeTab/>:
           value==2?<DonateTab/>:
           value==3?<ContactTab/>:
           value==4?<Aboutus/>:

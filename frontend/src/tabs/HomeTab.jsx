@@ -4,13 +4,14 @@ import Charts from '../components/Charts'
 import DonationStats from '../components/DonationStats'
 import Leaderboard from '../components/Leaderboard'
 import Latest from '../components/Latest'
+import useBackground from '../hooks/useBackground';
 
-const HomeTab = ({darkmode}) => {
+const HomeTab = () => {
+  const {isDark} = useBackground();
 
-  
 
   return (
-    <div className='flex flex-col'>
+    <div className={`flex flex-col ${!isDark?"bg-slate-800":""}`}>
       <div id='stats-container'>
         <StatsCard/>
       </div>
@@ -25,7 +26,7 @@ const HomeTab = ({darkmode}) => {
         </div>
 
         <div className='flex sm:flex-row flex-col justify-center mb-5 gap-5' id='leaderboard-container'>
-            <Leaderboard darkmode={darkmode?true:false}/>
+            <Leaderboard/>
             <Latest/>
         </div>
         

@@ -24,6 +24,7 @@ import useAuthStore from "../store/authStore";
 import { collection, doc, getDoc, onSnapshot, query, setDoc, where } from 'firebase/firestore';
 import useUserData from '../hooks/useUserData';
 import useUpdateAddress from '../hooks/useUpdateAddress';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 
 
 
@@ -80,7 +81,7 @@ const Navbar = () => {
   const handleProfileClick = () => {
     // Handle profile click
     
-    handleMenuClose();
+    setOpen(true);
   };
 
   const handleLogoutClick = () => {
@@ -277,11 +278,7 @@ const Navbar = () => {
                   >
                     <div id='nav-button-holder-sm' className='sm:hidden flex justify-center gap-10'>
                       < input type="checkbox" id="checkbox" value={openMore} onClick={anchorEl?handleMenuClose:handleMenuOpen}/>
-                          <label htmlFor="checkbox" className="toggle">
-                            <div className="bars" id="bar1"></div>
-                            <div className="bars" id="bar2"></div>
-                            <div className="bars" id="bar3"></div>
-                        </label>
+                          <MoreVertIcon/>
                     </div>
                   </IconButton>
                   <Menu
@@ -292,7 +289,7 @@ const Navbar = () => {
                     onClose={handleMenuClose}
                   >
                     <MenuItem onClick={handleProfileClick}>Profile</MenuItem>
-                    <MenuItem onClick={handleLogoutClick}>Logout</MenuItem>
+                    <MenuItem onClick={handleLogout}>Logout</MenuItem>
                   </Menu>
                 </div>
 

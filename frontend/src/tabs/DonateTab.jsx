@@ -44,9 +44,9 @@ const DonateTab = () => {
   return (
     <>
     <div id='donate-tab-main-container' className='flex w-[100%] '>
-        <div id='form-container' className='flex flex-col items-center justify-center ml-5 mt-5 w-[50%]'>
+        <div id='form-container' className='flex flex-col items-center justify-center ml-5 mt-5 sm:w-[50%] w-full'>
             <h1 className={`text-2xl font-semibold ${!isDark?"text-white":""}`}>Donate a Book for the needy❤️</h1>
-            <form className='w-[50%]' onSubmit={handleSubmit}>
+            <form className='sm:w-[50%] w-[90%]' onSubmit={handleSubmit}>
                 <TextField id="outlined-basic1" fullWidth  label="Enter Book Name" value={bookname} 
                     onChange={(e)=>{setBookname(e.target.value)}}
                     InputProps={{
@@ -142,7 +142,7 @@ const DonateTab = () => {
                 <Button variant="contained" type='submit' fullWidth sx={{mt:2}}>{loading?<CircularProgress sx={{color:"white"}}/>:<span>Donate❤️</span>}</Button>
             </form>
         </div>
-        <div id='earth-container' className='flex flex-col w-[40%] h-[50%] justify-center items-center'>
+        <div id='earth-container' className='sm:flex hidden flex-col w-[40%] h-[50%] justify-center items-center'>
             <Earth/>
             <span className='text-xl mt-2 font-semibold text-white'>Our Volunteers will collect books across India</span>
             <div id='address-box' className='mt-5'><SocialForm/></div>

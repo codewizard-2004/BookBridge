@@ -4,9 +4,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "./slider.css"
 
-import LinkedInIcon from '@mui/icons-material/LinkedIn';
-import GitHubIcon from '@mui/icons-material/GitHub';
-import InstagramIcon from '@mui/icons-material/Instagram';
+
 import { Button } from '@mui/material';
 import useBackground from '../hooks/useBackground';
 
@@ -15,7 +13,7 @@ const Aboutus = () => {
   const {isDark , setIsDark} = useBackground();
 
   return (
-  <div className={`w-[90%] m-auto h-[90%] flex flex-col gap-2 ${!isDark?"text-white":""}`}>
+  <div className={`w-[90%] m-auto h-[90%] flex flex-col gap-2 overflow-y-auto ${!isDark?"text-white":""}`}>
     <h1 className='font-bold mt-5 text-3xl'>OUR MISSION</h1>
     <h2 className='font-sans font-semibold text-left'>At BookBridge, our mission is to enhance educational opportunities for underprivileged children by facilitating the donation and distribution of books. We believe that every child deserves access to quality education, and through the power of books, we aim to unlock the potential of young minds. By connecting generous donors with NGOs and community organizations, we strive to bridge the gap between those who have books to give and those who need them the most.</h2>
     <h1 className='font-bold mt-5 text-3xl'>WHAT DO WE DO</h1>
