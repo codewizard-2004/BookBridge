@@ -6,6 +6,9 @@ import Leaderboard from '../components/Leaderboard'
 import Latest from '../components/Latest'
 
 const HomeTab = ({darkmode}) => {
+
+  
+
   return (
     <div className='flex flex-col'>
       <div id='stats-container'>

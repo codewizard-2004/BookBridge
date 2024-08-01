@@ -1,19 +1,40 @@
 import React, { useState } from 'react'
-import {TextField} from '@mui/material'
+import {CircularProgress, TextField} from '@mui/material'
 import { Button } from '@mui/material'
 import useBackground from '../hooks/useBackground';
 import toast, { Toaster } from 'react-hot-toast';
+import useFeedback from '../hooks/useFeedback';
 
 
 export const ContactTab = () => {
     const [feedback , setFeedback] = useState("");
+    const {loading , createFeedback} = useFeedback();
+
+    function countWords(str) {
+        // Trim the string to remove any leading or trailing whitespace
+        str = str.trim();
+    
+        // Check if the string is empty after trimming
+        if (str === "") {
+            return 0;
+        }
+    
+        // Split the string into words using a regular expression
+        const wordsArray = str.split(/\s+/);
+        console.log(wordsArray.length)
+    
+        // Return the length of the words array
+        return wordsArray.length;
+    }
+
     const handleSubmit = (e)=> {
         e.preventDefault();
-        if (!feedback || feedback.length<15){ 
-            toast.error("Please input a feedback more than 15 words");
+        if (!feedback || countWords(feedback)<10 ){ 
+            toast.error("Please input a feedback more than 10 words");
             return;
         }
         toast.success("Thank you for sharing your feedback with us");
+        createFeedback(feedback);
 
     }
     const {isDark} = useBackground();
@@ -49,7 +70,11 @@ export const ContactTab = () => {
                             }
                         })
                     }}/>
-                <Button variant="contained" type='submit' fullWidth sx={{mt:2}}>Submit Your feedback</Button>
+                <Button variant="contained" type='submit' fullWidth sx={{mt:2}}>{
+                    loading? <CircularProgress sx={{color:"white"}}/>:<span>
+                        Submit Your feedback
+                    </span>
+                }</Button>
             </form>
         </div>
         <div className='flex gap-5' id='icon-container'></div>

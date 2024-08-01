@@ -86,7 +86,7 @@ const Signup = () => {
 
           
         <Button variant="contained" type="submit" sx={{mt:3, width:"80%"}}>
-          {loading ? <CircularProgress sx={{width: "10px"}}/> : 'LOGIN'}
+          {loading ? <CircularProgress sx={{width: "10px" , color:"white"}}/> : 'LOGIN'}
         </Button>
 
         </form>

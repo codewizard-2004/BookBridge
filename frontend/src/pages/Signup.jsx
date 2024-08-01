@@ -67,8 +67,8 @@ const Signup = () => {
           address: null,
           books: []
         });
-        localStorage.setItem("user-info", JSON.stringify({ fullname: fname, email: user.email, uid: user.uid }));
-        loginUser({ fullname: fname, email: user.email, uid: user.uid});
+        localStorage.setItem("user-info", JSON.stringify(userCredential.user.uid));
+        loginUser(userCredential.user.uid);
         toast.success("Account created");
       }
       else{toast.error("bad input data")}
@@ -130,7 +130,7 @@ const Signup = () => {
         }} variant="outlined" sx={{mt:2 , width:"80%"}}/>
           
           <Button variant="contained" type="submit" sx={{mt:1, width:"80%"}}>
-          {loading ? <CircularProgress sx={{width: "10px"}}/> : 'Create Account'}
+          {loading ? <CircularProgress sx={{width: "10px"  , color:"white"}}/> : 'Create Account'}
           </Button>
 
         </form>

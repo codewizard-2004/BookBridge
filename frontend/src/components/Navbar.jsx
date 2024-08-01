@@ -23,6 +23,7 @@ import useLogout from '../hooks/useLogout';
 import useAuthStore from "../store/authStore";
 import { collection, doc, getDoc, onSnapshot, query, setDoc, where } from 'firebase/firestore';
 import useUserData from '../hooks/useUserData';
+import useUpdateAddress from '../hooks/useUpdateAddress';
 
 
 
@@ -44,6 +45,8 @@ const Navbar = () => {
 
   const {userData , loading , error} = useUserData();
   const userUID = useAuthStore((state) => state.user);
+
+  const {addressloading , updateAddress} = useUpdateAddress();
 
 
   
@@ -98,15 +101,9 @@ const Navbar = () => {
   const handleConfirmAddress = async()=>{
     console.log(address)
     const docRef = doc(firestore, 'Users', userUID);
-    try {
-      await setDoc(docRef , {
-        address: address
-      },{ merge: true })
-      console.log("added Successfully")
-    } catch (error) {
-      console.log("Error adding address" , error)
-    }
-    handleClose()
+    updateAddress(address);
+    handleClickSet()
+    // handleClose()
   }
 
   const formatDate = (timestamp) => {
@@ -201,10 +198,10 @@ const Navbar = () => {
                 <DialogContent>
                   <DialogContentText id="alert-dialog-slide-description">
                      <ul className={``}>
-                      <li className='flex justify-between border-b-2'>Full Name:<span>{loading?<CircularProgress/>:userData.fullname}</span></li>
-                      <li className='flex justify-between border-b-2'>Joined on: <span>{loading?<CircularProgress/>:formatDate(userData.createdAt)}</span></li>
-                      <li className='flex justify-between border-b-2'>Books Donated: <span>{loading?<CircularProgress/>:userData.books.length}</span></li>
-                      <li className='flex justify-between border-b-2'>Address: <span>{loading?<CircularProgress/>:
+                      <li className='flex justify-between border-b-2'>Full Name:<span>{loading?<CircularProgress sx={{color:"white"}} />:userData.fullname}</span></li>
+                      <li className='flex justify-between border-b-2'>Joined on: <span>{loading?<CircularProgress sx={{color:"white"}}/>:formatDate(userData.createdAt)}</span></li>
+                      <li className='flex justify-between border-b-2'>Books Donated: <span>{loading?<CircularProgress sx={{color:"white"}}/>:userData.books.length}</span></li>
+                      <li className='flex justify-between border-b-2'>Address: <span>{loading?<CircularProgress sx={{color:"white"}}/>:
                       !userData.address?
                       <div className='flex gap-1'>
                         <p>Not Set</p>
@@ -224,7 +221,7 @@ const Navbar = () => {
                           value={address}
                           onChange={(e)=>setAddress(e.target.value)}
                           />
-                        <Button variant='contained' onClick={handleConfirmAddress}>Confirm</Button>
+                        <Button variant='contained' onClick={handleConfirmAddress}>{addressloading?<CircularProgress sx={{color:"white"}}/>:<span>Confirm</span>}</Button>
                         
                       </li>
                       

@@ -9,11 +9,12 @@ const useUpdateAddress = ()=>{
     const userUID = useAuthStore((state) => state.user);
     const [loading , setLoading] = useState(false);
 
-    const updateAddress = async({address})=>{
+    const updateAddress = async(address)=>{
         setLoading(true)
         try {
             const docRef = doc(firestore, 'Users', userUID);
             await setDoc(docRef , {address:address},{ merge: true })
+            toast.success("Address Created")
         } catch (error) {
             toast.error(error.message)
             console.log(error.message)
