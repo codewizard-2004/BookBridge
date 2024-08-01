@@ -8,41 +8,21 @@ import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import { Button } from '@mui/material';
+import useBackground from '../hooks/useBackground';
 
 
 const Aboutus = () => {
-  var settings = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 3,
-    slidesToScroll: 1
-  };
-  return (
-  <div className='w-3/4 m-auto'>
-    <div className='mt-10'>
-     <Slider {...settings}>
-       {data.map((d) => (
-        <div className='bg-w h-[450px] text-black rounded-xl' id='image-container-slider'>
-          <div className='rounded-t-xl  flex justify-center items-center h-[300px]'>
-            <img src={d.img} alt='' className='h-60 w-60 rounded-full px-2 py-2'/>
-          </div>
-           <div className=' flex flex-col justify-center items-center gap-4 p-4'>
-            <p className='text-xl font-semibold px-2 top-1'>{d.name}</p>
-            <p className='top-1'>{d.review}</p>
-            <div id='social-icons' className='flex'>
-              <Button sx={{color: "white"}}><LinkedInIcon/></Button>
-              <Button sx={{color: "white"}}><GitHubIcon/></Button>
-              <Button sx={{color: "white"}}><InstagramIcon/></Button>
-            </div>
-           </div>
+  const {isDark , setIsDark} = useBackground();
 
-         </div>
-        
-      
-      ))}
-     </Slider> 
-    </div>
+  return (
+  <div className={`w-[90%] m-auto h-[90%] flex flex-col gap-2 ${!isDark?"text-white":""}`}>
+    <h1 className='font-bold mt-5 text-3xl'>OUR MISSION</h1>
+    <h2 className='font-sans font-semibold text-left'>At BookBridge, our mission is to enhance educational opportunities for underprivileged children by facilitating the donation and distribution of books. We believe that every child deserves access to quality education, and through the power of books, we aim to unlock the potential of young minds. By connecting generous donors with NGOs and community organizations, we strive to bridge the gap between those who have books to give and those who need them the most.</h2>
+    <h1 className='font-bold mt-5 text-3xl'>WHAT DO WE DO</h1>
+    <h2 className='font-sans font-semibold text-left'>BookBridge is more than just a platform—it's a community dedicated to promoting literacy and lifelong learning. Since our inception, we've worked tirelessly to make book donations accessible and impactful. With streamlined processes and a user-friendly interface, we've empowered hundreds of donors to contribute to the education of thousands of children.
+    Our project supports SDG 4: Quality Education by ensuring that children in underserved communities receive the resources they need to succeed in their studies. Whether it’s through individual book donations or large-scale literacy workshops, we’re making a tangible difference in the lives of children across the globe.</h2>
+    <h1 className='font-bold mt-5 text-3xl'>JOIN US</h1>
+    <h2 className='font-sans font-semibold text-left'>We’re always looking for passionate individuals to join our cause. Whether you’re interested in donating books, volunteering, or partnering with us, there’s a place for you in the BookBridge community. Together, we can make a difference, one book at a time.</h2>
 
   </div>
   );

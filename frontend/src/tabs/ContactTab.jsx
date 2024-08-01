@@ -1,9 +1,11 @@
 import React, { useState } from 'react'
-import {CircularProgress, TextField} from '@mui/material'
+import {Card, CircularProgress, TextField} from '@mui/material'
 import { Button } from '@mui/material'
 import useBackground from '../hooks/useBackground';
 import toast, { Toaster } from 'react-hot-toast';
 import useFeedback from '../hooks/useFeedback';
+import Cards from '../components/Cards';
+
 
 
 export const ContactTab = () => {
@@ -77,11 +79,14 @@ export const ContactTab = () => {
                 }</Button>
             </form>
         </div>
-        <div className='flex gap-5' id='icon-container'></div>
-        {/* <div id='customer-service' className='flex justify-center items-center w-[40%]'>
-            <img src={Customergirl} alt="" className='mt-10 h-3/5 '/>
-        </div> */}
         <Toaster/>
+        <div id='contact-cards' className='flex items-center justify-center mt-5 gap-5 flex-wrap'>
+                <Cards name={"Adinath Manoj Nambiar"} imageLoc='./students/image-3.jpeg'/>
+                <Cards name={"Adinath Manoj Nambiar"} imageLoc='./students/image-3.jpeg'/>
+                <Cards name={"Adinath Manoj Nambiar"} imageLoc='./students/image-3.jpeg'/>
+                <Cards name={"Adinath Manoj Nambiar"} imageLoc='./students/image-3.jpeg'/>
+                <Cards name={"Adinath Manoj Nambiar"} imageLoc='./students/image-3.jpeg'/>
+        </div>
     </div>
   )
 }
