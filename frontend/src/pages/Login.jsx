@@ -80,9 +80,7 @@ const Signup = () => {
 
         
 
-        <div className='text-blue-400 mt-1 hover:underline'>
-          <a href='#'>forgot password?</a>
-        </div>
+        
 
           
         <Button variant="contained" type="submit" sx={{mt:3, width:"80%"}}>

@@ -16,12 +16,12 @@ import './Navbar.css'
 
 import { Menu, MenuItem, IconButton } from '@mui/material';
 
-import { auth ,firestore } from '../firebase/firebase';
-import { add, format } from 'date-fns';
+import {firestore } from '../firebase/firebase';
+import {format } from 'date-fns';
 import useLogout from '../hooks/useLogout';
 
 import useAuthStore from "../store/authStore";
-import { collection, doc, getDoc, onSnapshot, query, setDoc, where } from 'firebase/firestore';
+import { doc} from 'firebase/firestore';
 import useUserData from '../hooks/useUserData';
 import useUpdateAddress from '../hooks/useUpdateAddress';
 import MoreVertIcon from '@mui/icons-material/MoreVert';

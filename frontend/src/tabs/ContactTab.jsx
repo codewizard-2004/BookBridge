@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import {Card, CircularProgress, TextField} from '@mui/material'
+import { CircularProgress, TextField} from '@mui/material'
 import { Button } from '@mui/material'
 import useBackground from '../hooks/useBackground';
 import toast, { Toaster } from 'react-hot-toast';
@@ -35,7 +35,6 @@ export const ContactTab = () => {
             toast.error("Please input a feedback more than 10 words");
             return;
         }
-        toast.success("Thank you for sharing your feedback with us");
         createFeedback(feedback);
 
     }
@@ -86,7 +85,7 @@ export const ContactTab = () => {
                 <Cards name={"Pranav Paul"} linkedin={"https://www.linkedin.com/in/pranavpaul/"} insta={"https://www.instagram.com/pranav_paul_/"}/>
                 <Cards name={"Adinath Manoj Nambiar"} linkedin={"https://www.linkedin.com/in/adinath-manoj-nambiar-3b1b75292/"} github={"https://github.com/adinath103"} insta={"https://www.instagram.com/adinath_manoj/"}/>
                 <Cards name={"Alen M Varghese"} linkedin={"https://www.linkedin.com/in/alan-m-varghese-396002280/"} insta={"https://www.instagram.com/al._.xn._/"}/>
-                <Cards name={"Cebin Jimson"} linkedin={"https://www.linkedin.com/in/cebin-jimson-1b93a7289/"} insta={"https://www.instagram.com/callmejimsaa/"}/>
+                <Cards name={"Cebin Jimson"} github={"https://github.com/cebinjimson"} linkedin={"https://www.linkedin.com/in/cebin-jimson-1b93a7289/"} insta={"https://www.instagram.com/callmejimsaa/"}/>
         </div>
     </div>
   )

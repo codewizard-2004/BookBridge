@@ -11,14 +11,9 @@ import { ContactTab } from '../tabs/ContactTab';
 
 import useBackground from '../hooks/useBackground';
 
-import { createTheme } from '@mui/material/styles';
+
 import Aboutus from '../tabs/Aboutus';
 
-import useAuthStore from "../store/authStore";
-import { collection, doc, getDoc, onSnapshot } from 'firebase/firestore';
-import { firestore } from '../firebase/firebase';
-
-import useUserData from '../hooks/useUserData';
 
 
 

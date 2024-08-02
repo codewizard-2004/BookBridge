@@ -17,7 +17,7 @@ import { useCreateUserWithEmailAndPassword } from 'react-firebase-hooks/auth';
 // import useSignUpWithEmailAndPassword from '../hooks/useSignUpWithEmailAndPassword';
 import { doc, setDoc, serverTimestamp, collection, query, where, getDocs } from 'firebase/firestore';
 import CircularProgress from '@mui/material/CircularProgress';
-import { fetchSignInMethodsForEmail } from 'firebase/auth';
+
 
 
 
