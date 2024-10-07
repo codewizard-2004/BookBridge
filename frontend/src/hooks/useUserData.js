@@ -5,7 +5,7 @@ import useAuthStore from "../store/authStore"; // Adjust the path to your zustan
 
 const useUserData = () => {
   const userUID = useAuthStore((state) => state.user);
-  console.log(userUID)
+  console.log("UserId"+userUID)
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -38,7 +38,7 @@ const useUserData = () => {
 
     return () => unsubscribe();
   }, [userUID]);
-  console.log(userData)
+
 
   return { userData, loading, error };
 };

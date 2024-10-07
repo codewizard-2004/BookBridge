@@ -199,10 +199,10 @@ const Navbar = () => {
                 <DialogContent>
                   <DialogContentText id="alert-dialog-slide-description">
                      <ul className={``}>
-                      <li className='flex justify-between border-b-2'>Full Name:<span>{loading?<CircularProgress sx={{color:"white"}} />:userData.fullname}</span></li>
-                      <li className='flex justify-between border-b-2'>Joined on: <span>{loading?<CircularProgress sx={{color:"white"}}/>:formatDate(userData.createdAt)}</span></li>
-                      <li className='flex justify-between border-b-2'>Books Donated: <span>{loading?<CircularProgress sx={{color:"white"}}/>:userData.books.length}</span></li>
-                      <li className='flex justify-between border-b-2'>Address: <span>{loading?<CircularProgress sx={{color:"white"}}/>:
+                      <li className='flex justify-between border-b-2'>Full Name:<span>{!userData?<h1>Loading..</h1>:userData.fullname}</span></li>
+                      <li className='flex justify-between border-b-2'>Joined on: <span>{!userData?<h1>Loading..</h1>:formatDate(userData.createdAt)}</span></li>
+                      <li className='flex justify-between border-b-2'>Books Donated: <span>{!userData?<h1>Loading..</h1>:userData.books.length}</span></li>
+                      <li className='flex justify-between border-b-2'>Address: <span>{!userData?<h1>Loading..</h1>:
                       !userData.address?
                       <div className='flex gap-1'>
                         <p>Not Set</p>

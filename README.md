@@ -17,29 +17,41 @@ Here're some of the project's best features:
 *   Live Leaderboard
 *   Easy Install
 
+<h2>💻Screenshots</h2>
+
+Here are some of the screenshots of the website
+
+![signin](/BookBridge/frontend/src/assets/images/login.png)
+![login](/BookBridge/frontend/src/assets/images/signin.png)
+![home1](/BookBridge/frontend/src/assets/images/home1.png)
+![home2](/BookBridge/frontend/src/assets/images/home2.png)
+![donate](/BookBridge/frontend/src/assets/images/donate.png)
+![donate](/BookBridge/frontend/src/assets/images/donate2.png)
+
+
 <h2>🛠️ Installation Steps:</h2>
 
-<p>1. Clone the Repository</p>
+<p>1. Clone the Repository- Fork this repository</p>
 
 ```
-git clone https://github.com/codewizard-2004/BookBridge.git
+git clone <link of your forked repo>
 ```
 
 <p>2. Go to Vite folder</p>
 
-```
+```bash
 cd BookBridge/frontend
 ```
 
 <p>3. Install dependencies</p>
 
-```
+```bash
 npm install
 ```
 
 <p>4. Run</p>
 
-```
+```bash
 npm run dev
 ```
 
