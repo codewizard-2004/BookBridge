@@ -21,12 +21,12 @@ Here're some of the project's best features:
 
 Here are some of the screenshots of the website
 
-![signin](/BookBridge/frontend/src/assets/images/login.png)
-![login](/BookBridge/frontend/src/assets/images/signin.png)
-![home1](/BookBridge/frontend/src/assets/images/home1.png)
-![home2](/BookBridge/frontend/src/assets/images/home2.png)
-![donate](/BookBridge/frontend/src/assets/images/donate.png)
-![donate](/BookBridge/frontend/src/assets/images/donate2.png)
+![signin](/frontend/src/assets/images/login.png)
+![login](/frontend/src/assets/images/signin.png)
+![home1](/frontend/src/assets/images/home1.png)
+![home2](/frontend/src/assets/images/home2.png)
+![donate](/frontend/src/assets/images/donate.png)
+![donate](/frontend/src/assets/images/donate2.png)
 
 
 <h2>🛠️ Installation Steps:</h2>
