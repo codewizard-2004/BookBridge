@@ -21,7 +21,7 @@ const TopNavigator = () => {
           <TouchableOpacity className='bg-accent w-12 h-9 justify-center items-center rounded-full'>
             <Text className='text-orange-500'>🔥5</Text>
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={()=> router.push("/search")}>
             <Search size={24} color="#1A73E8" />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => router.push("/(tabs)/profile")}>

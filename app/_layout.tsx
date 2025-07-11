@@ -13,6 +13,13 @@ export default function RootLayout() {
             header: () => <TopNavigator/>
           }}
         />
+        <Stack.Screen 
+          name="search/index"
+          options={{
+            title:"Search",
+            headerShown: false
+          }}
+        />
       </Stack>
     </GestureHandlerRootView>
   );
