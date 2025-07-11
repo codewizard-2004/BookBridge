@@ -1,10 +1,11 @@
 import { useRouter } from 'expo-router';
 import { CircleUserRound, Search } from 'lucide-react-native';
 import React from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Image, Text, TouchableOpacity, View } from 'react-native';
 
 const TopNavigator = () => {
   const router = useRouter();
+  const avatar = "https://avatar.iran.liara.run/public/18";
 
   return (
     <View className="flex-row items-center justify-between px-4 pt-12 pb-3 bg-white shadow">
@@ -24,7 +25,10 @@ const TopNavigator = () => {
             <Search size={24} color="#1A73E8" />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => router.push("/(tabs)/profile")}>
+            {avatar?
+            <Image source={{uri: avatar}} style={{ width: 32, height: 32, borderRadius: 16 }} />:
             <CircleUserRound size={24} color="#1A73E8"/>
+            }
           </TouchableOpacity>
         </View>
     </View>

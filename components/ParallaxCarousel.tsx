@@ -17,6 +17,7 @@ const SecondSlide = () => (
         <Text className='text-3xl text-white font-semibold'>110</Text>
         <Text className='text-secondary'>/ 150</Text>
     </View>
+    <Text className='text-gray-400'>pages read</Text>
   </View>
 );
 
@@ -39,7 +40,7 @@ const ParallaxCarousel = () => {
 
   const styles = StyleSheet.create({
   container: {
-    marginTop: 20,
+    marginTop: 10,
     alignItems: 'center',
   },
   pagination: {

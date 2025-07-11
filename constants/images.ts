@@ -1,6 +1,12 @@
-import bookCover from "@/assets/images/book_cover.jpg";
+import atomicHabits from "@/assets/images/book_cover.jpg";
+import HP from "@/assets/images/harrypotter.jpg";
+import LOTR from "@/assets/images/lotr.jpg";
+import oceanDoor from "@/assets/images/oceandoor.jpg";
 
 
 export const images = {
-    bookCover
+    atomicHabits,
+    oceanDoor,
+    LOTR,
+    HP
 }
