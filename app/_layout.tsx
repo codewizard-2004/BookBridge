@@ -5,8 +5,13 @@ import './globals.css';
 
 export default function RootLayout() {
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <Stack>
+    <GestureHandlerRootView className="bg-background" style={{ flex: 1, backgroundColor: "black" }}>
+
+      <Stack
+        screenOptions={{
+          contentStyle: { backgroundColor: "black" }, // sets background for all screens
+        }}
+      >
         <Stack.Screen 
           name="(tabs)"
           options={{

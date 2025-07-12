@@ -1,15 +1,16 @@
 import SearchHistory from '@/components/SearchHistory'
+import { images } from '@/constants/images'
 import { router } from 'expo-router'
 import { ArrowLeft, Camera , Trash2} from 'lucide-react-native'
 import React from 'react'
-import { TextInput, TouchableOpacity, View, Text , Pressable} from 'react-native'
+import { TextInput, TouchableOpacity, View, Text , Pressable, Image} from 'react-native'
 
 const index = () => {
 
   const [searchHistory , setSearchHistory] = React.useState<string[]>(["Harry Potter", "Atomic Habits", "Lord of the Rings"]);
   return (
-    <View className='flex-1 items-center w-full mt-10 '>
-      <View className='w-full flex flex-row gap-2 justify-center items-center'>
+    <View className='flex-1 items-center w-full bg-background'>
+      <View className='w-full mt-10 flex flex-row gap-2 justify-center items-center'>
         <TouchableOpacity onPress={()=>router.back()}>
           <ArrowLeft size={32} color="#F07900" />
         </TouchableOpacity>
@@ -27,7 +28,7 @@ const index = () => {
       {/*BELOW SEARCH BAR */}
       { searchHistory.length > 0 ? (
         <View className='w-full ml-10 mt-3'>
-          <Text className='text-xl font-semibold'>Recent Searches</Text>
+          <Text className='text-xl font-semibold  text-white pb-4'>Recent Searches</Text>
 
           <View className='gap-5'>
             {/* <SearchHistory name='Atomic Habits'/>
@@ -49,8 +50,9 @@ const index = () => {
             <Text className="text-white font-medium text-base">clear search history</Text>
           </Pressable>
         </View>):(
-          <View>
-            <Text className='text-xl  font-semibold mt-5'>Search for books or scan ISBN barcode</Text>
+          <View className='flex  flex-col items-center h-full'>
+            <Text className='text-xl text-gray-400  font-semibold mt-5 ml-4'>Nothing here! Search for books or scan IBSN</Text>
+            <Image source={images.SearchImg}  style={{height:300  , width:300}} />
           </View>
         )}
     </View>

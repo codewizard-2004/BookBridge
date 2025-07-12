@@ -9,6 +9,7 @@ const books = () => {
 
   const data = [
     {
+      id: "1",
       cover: images.atomicHabits,
       title: "Atomic Habits",
       author: "James Clear",
@@ -16,6 +17,7 @@ const books = () => {
       totalPages: 100
     },
     {
+      id: "2",
       cover: images.HP,
       title: "Harry Potter",
       author: "JK Rowling",
@@ -23,6 +25,7 @@ const books = () => {
       totalPages: 100
     },
     {
+      id: "3",
       cover: images.LOTR,
       title: "Lord of the Rings",
       author: "JJ Tolkien",
@@ -30,6 +33,7 @@ const books = () => {
       totalPages: 100
     },
     {
+      id: "4",
       cover: images.oceanDoor,
       title: "Beyond the Ocean Door",
       author: "Amisha Sathi",
@@ -37,17 +41,21 @@ const books = () => {
       totalPages: 100
     }
   ]
-  const data2 = null;
+  
+  const [books, setBooks] = useState(data);
+  const handleDelete = (id: string) => {
+    setBooks(prev => prev.filter(book => book.id !== id));
+  };
 
   return (
     
-    <View >
+    <View className='bg-background'>
       {loading   ? (
-        <View className='flex flex-col w-full items-center justify-center h-full'>
+        <View className='flex  bg-background flex-col w-full items-center justify-center h-full'>
           <ActivityIndicator size="large" color="#1A73E8" />
         </View>
       ):(
-      <View className='w-full m-5'>
+      <View className='w-full m-5  bg-background'>
         <Text className='text-primary font-semibold  text-3xl'>Your Books</Text>
         <View id='buttons' className='flex flex-row  gap-3 mt-5'>
 
@@ -71,8 +79,9 @@ const books = () => {
 
         </View>
         <FlatList
-          data={data2}
-          keyExtractor={(item, index) => index.toString()}
+          className='bg-background'
+          data={books}
+          keyExtractor={item => item.id}
           renderItem={({ item }) => (
             <BookButton2
               title={item.title}
@@ -80,9 +89,10 @@ const books = () => {
               cover={item.cover}
               progress={item.progress}
               totalPages={item.totalPages}
+              onDelete={() => handleDelete(item.id)}
             />
           )}
-          contentContainerStyle={{ paddingTop: 20, paddingBottom: 270 }}
+          contentContainerStyle={{ paddingTop: 20, paddingBottom: 400 }}
           ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
           ListEmptyComponent={() => (
             <View className='flex-1  items-center justify-center'>
