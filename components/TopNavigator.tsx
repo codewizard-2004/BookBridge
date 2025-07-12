@@ -1,3 +1,4 @@
+import { images } from '@/constants/images';
 import { useRouter } from 'expo-router';
 import { CircleUserRound, Search } from 'lucide-react-native';
 import React from 'react';
@@ -14,7 +15,9 @@ const TopNavigator = () => {
           source={require('../assets/logo.png')} // 👈 Replace with your logo
           className="w-8 h-8 mr-2"
         /> */}
-        <Text className="text-2xl font-bold text-primary">📚 BookBridge</Text>
+        {/* <Text className="text-2xl font-bold text-primary">📚 BookBridge</Text> */}
+        <Image  source={images.LOGO} style={{width: 35 , height:35}}/>
+        <Text className='text-xl font-semibold ml-2 text-primary'>BOOKBRIDGE</Text>
       </View>
     
         <View className='flex flex-row gap-5'>

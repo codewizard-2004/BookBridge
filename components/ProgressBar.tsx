@@ -2,20 +2,11 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
 export default function ProgressBar({ progress = 0.5 }) {
-  return (
-    <View style={styles.container}>
-      <View style={styles.background}>
-        <View style={[styles.fill, { width: `${progress * 100}%` }]} />
-      </View>
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
+  const styles = StyleSheet.create({
   container: {
     width: '90%',
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 10,
   },
   background: {
     width: '100%',
@@ -36,3 +27,13 @@ const styles = StyleSheet.create({
     color: '#1a202c',
   },
 });
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.background}>
+        <View style={[styles.fill, { width: `${progress * 100}%` }]} />
+      </View>
+    </View>
+  );
+}
+

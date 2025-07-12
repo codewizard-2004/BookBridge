@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "DBMS_Project",
-    "slug": "DBMS_Project",
+    "name": "Bookbridge",
+    "slug": "Bookbridge",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/logo/logo.png",
     "scheme": "books",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -28,7 +28,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/logo/bookbridge.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
