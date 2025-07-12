@@ -8,7 +8,7 @@ const TopNavigator = () => {
   const avatar = "https://avatar.iran.liara.run/public/18";
 
   return (
-    <View className="flex-row items-center justify-between px-4 pt-12 pb-3 bg-white shadow">
+    <View className="flex-row items-center justify-between px-4 pt-12 pb-3 bg-background shadow">
       <View className="flex-row items-center">
         {/* <Image
           source={require('../assets/logo.png')} // 👈 Replace with your logo
@@ -19,15 +19,15 @@ const TopNavigator = () => {
     
         <View className='flex flex-row gap-5'>
           <TouchableOpacity className='bg-accent w-12 h-9 justify-center items-center rounded-full'>
-            <Text className='text-orange-500'>🔥5</Text>
+            <Text className='text-white font-semibold'>🔥5</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={()=> router.push("/search")}>
-            <Search size={24} color="#1A73E8" />
+            <Search size={24} color="#F07900" />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => router.push("/(tabs)/profile")}>
             {avatar?
             <Image source={{uri: avatar}} style={{ width: 32, height: 32, borderRadius: 16 }} />:
-            <CircleUserRound size={24} color="#1A73E8"/>
+            <CircleUserRound size={24} color="#F07900"/>
             }
           </TouchableOpacity>
         </View>

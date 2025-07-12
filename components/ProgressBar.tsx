@@ -21,12 +21,12 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 7,
     borderRadius: 8,
-    backgroundColor: '#e5e7eb', // Tailwind gray-200
+    backgroundColor: '#444444', // Dark gray background
     overflow: 'hidden',
   },
   fill: {
     height: '100%',
-    backgroundColor: '#1A73E8', // Primary
+    backgroundColor: '#F07900', // Orange primary
     borderRadius: 8,
   },
   label: {

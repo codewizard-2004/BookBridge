@@ -6,15 +6,15 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: "#1A73E8",
-        secondary: "#E8F0FE",
-        accent: "#FFE8DC",
-        background: "#FFFFFF",
-        textPrimary: "#1F2937",
-        textSecondary: "#6B7280",
-        progressActive: "#1A73E8",
-        progressInactive: "#D1D5DB",
-        fab: "#1A73E8"
+        primary: "#F07900",
+        secondary: "#2A2A2A",
+        accent: "#FF9933",
+        background: "#151515",
+        textPrimary: "#FFFFFF",
+        textSecondary: "#B0B0B0",
+        progressActive: "#F07900",
+        progressInactive: "#444444",
+        fab: "#F07900"
       }
     }
 ,

@@ -70,10 +70,10 @@ export default function Index() {
 
   const loading = false; //set to true for loading screen
   return (
-    <View className="">
+    <View className="bg-background flex-1">
       {/* IF Data is being loaded we will implement skeletons here */}
       {loading ? (
-        <ActivityIndicator size={"large"} className="justify-center items-center h-full" color={"#1A73E8"} />
+        <ActivityIndicator size={"large"} className="justify-center items-center h-full" color={"#F07900"} />
       ):(
       <ScrollView className="mt-8 ml-5 flex" contentContainerStyle={{ paddingBottom: 100 }}>
         <Text className="text-2xl font-semibold text-primary">Welcome Back, John Doe!</Text>
@@ -81,7 +81,7 @@ export default function Index() {
 
         </View> */}
         <ParallaxCarousel/>
-        <Text className="text-2xl mt-[-35px] font-semibold">Continue Reading</Text>
+        <Text className="text-2xl mt-[-35px] font-semibold text-textPrimary">Continue Reading</Text>
         <FlatList 
           horizontal
           data={data}
@@ -97,7 +97,7 @@ export default function Index() {
 
          />
 
-        <Text className="text-2xl font-semibold mt-7">Recommended For You</Text>
+        <Text className="text-2xl font-semibold mt-7 text-textPrimary">Recommended For You</Text>
         <FlatList 
           horizontal
           data={data2}
