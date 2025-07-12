@@ -11,13 +11,13 @@ const SecondSlide = () => (
   <View className="w-[95%] h-[200px] bg-secondary rounded-3xl justify-center items-center">
     <View className="flex justify-between w-[90%] flex-row">
       <Text className="text-xl font-semibold text-primary">Weekly Goal</Text>
-      <Text className='text-gray-400'>3 days left</Text>
+      <Text className='text-textSecondary'>3 days left</Text>
     </View>
     <View className='w-[100px] h-[100px] rounded-full bg-primary flex flex-col justify-center items-center'>
         <Text className='text-3xl text-white font-semibold'>110</Text>
-        <Text className='text-secondary'>/ 150</Text>
+        <Text className='text-white'>/ 150</Text>
     </View>
-    <Text className='text-gray-400'>pages read</Text>
+    <Text className='text-textSecondary'>pages read</Text>
   </View>
 );
 
@@ -33,9 +33,9 @@ const slides = [0, 1, 2];
 const ParallaxCarousel = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const colorMap: { [key: number]: string } = {
-    0: "#1A73E8",
-    1: "#1A73E8",
-    2: "#FFE8DC"
+    0: "#F07900",
+    1: "#F07900",
+    2: "#FF9933"
   }
 
   const styles = StyleSheet.create({
@@ -62,7 +62,7 @@ const ParallaxCarousel = () => {
     
   },
   inactiveDot: {
-    backgroundColor: '#d1d5db', // tailwind gray-300
+    backgroundColor: '#444444', // Dark gray for inactive dots
   },
 });
 

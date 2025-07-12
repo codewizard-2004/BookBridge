@@ -12,7 +12,7 @@ type TabIconProps = {
 };
 
 const TabIcon = ({ Icon, text,  focused }: TabIconProps) => {
-  const color = focused ? '#1A73E8' : 'gray';
+  const color = focused ? '#F07900' : '#B0B0B0';
 
   return (
     <View className='w-full h-full justify-center items-center flex flex-col'>
@@ -45,7 +45,7 @@ const _layout = () => {
           marginTop:6,
         },
         tabBarStyle: {
-          backgroundColor: "#FFFFFF",
+          backgroundColor: "#2A2A2A",
           borderRadius: 50,
           marginHorizontal: 10,
           marginBottom: 36,
@@ -54,6 +54,7 @@ const _layout = () => {
           bottom: -5,
           overflow: "hidden",
           borderWidth: 1,
+          borderColor: "#444444",
         }
       }}
     >

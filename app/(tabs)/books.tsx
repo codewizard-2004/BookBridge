@@ -3,8 +3,8 @@ import { Text, View } from 'react-native'
 
 const books = () => {
   return (
-    <View>
-      <Text>books</Text>
+    <View className="bg-background flex-1">
+      <Text className="text-textPrimary">books</Text>
     </View>
   )
 }
