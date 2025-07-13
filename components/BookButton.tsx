@@ -15,7 +15,7 @@ type BookButtonProps = {
 const BookButton: React.FC<BookButtonProps> = ({ cover, title, author, progress, totalPages }) => {
   return (
     <TouchableOpacity
-      className="h-[270px] w-[170px] rounded-xl bg-secondary items-center"
+      className="h-[280px] w-[170px] rounded-xl bg-secondary items-center"
       style={{
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
@@ -31,7 +31,7 @@ const BookButton: React.FC<BookButtonProps> = ({ cover, title, author, progress,
             source={cover}
             style={{
                 width: 170,
-                height: progress > 0 ? 150 : 200,
+                height: progress > 0 ? 180 : 200,
                 marginTop: 0,
                 borderRadius: 20
             }}
@@ -46,9 +46,12 @@ const BookButton: React.FC<BookButtonProps> = ({ cover, title, author, progress,
             </>
             ):
             (
-              <>
-              <Text className='text-textSecondary ml-1 text-xs'>⭐4.2</Text>
-              </>
+              <View className='flex flex-row items-center gap-2'>
+              <Text className='text-gray-400 ml-1 text-xs'>⭐4.2</Text>
+              <View className='bg-gray-200 rounded-xl px-2 py-1'>
+                <Text className='text-black text-xs'>Biography</Text>
+              </View>
+              </View>
             )
             }
           

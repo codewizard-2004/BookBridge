@@ -8,14 +8,19 @@ export default function RootLayout() {
     <GestureHandlerRootView className="bg-background" style={{ flex: 1, backgroundColor: "black" }}>
 
       <Stack
-        screenOptions={{
-          contentStyle: { backgroundColor: "black" }, // sets background for all screens
-        }}
+        
       >
         <Stack.Screen 
           name="(tabs)"
           options={{
             header: () => <TopNavigator/>
+          }}
+        />
+        <Stack.Screen 
+          name="streak/index"
+          options={{
+            title:"Streak Society",
+            headerShown: false
           }}
         />
         <Stack.Screen 

@@ -51,7 +51,7 @@ const index = () => {
           </Pressable>
         </View>):(
           <View className='flex  flex-col items-center h-full'>
-            <Text className='text-xl text-gray-400  font-semibold mt-5 ml-4'>Nothing here! Search for books or scan IBSN</Text>
+            <Text className='text-center text-base text-gray-400 mt-5 ml-4'>Nothing here! Search for books or scan IBSN</Text>
             <Image source={images.SearchImg}  style={{height:300  , width:300}} />
           </View>
         )}

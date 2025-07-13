@@ -21,7 +21,7 @@ const TopNavigator = () => {
       </View>
     
         <View className='flex flex-row gap-5'>
-          <TouchableOpacity className='bg-accent w-12 h-9 justify-center items-center rounded-full'>
+          <TouchableOpacity className='bg-accent w-12 h-9 justify-center items-center rounded-full' onPress={() => router.push("/streak")}>
             <Text className='text-white font-semibold'>🔥5</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={()=> router.push("/search")}>
