@@ -1,9 +1,9 @@
 import SearchHistory from '@/components/SearchHistory'
 import { images } from '@/constants/images'
 import { router } from 'expo-router'
-import { ArrowLeft, Camera , Trash2} from 'lucide-react-native'
+import { ArrowLeft, Camera, Trash2 } from 'lucide-react-native'
 import React from 'react'
-import { TextInput, TouchableOpacity, View, Text , Pressable, Image} from 'react-native'
+import { Image, Pressable, Text, TextInput, TouchableOpacity, View } from 'react-native'
 
 const index = () => {
 

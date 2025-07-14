@@ -1,17 +1,17 @@
-import { CircleCheck, Trash2 } from "lucide-react-native";
+import { Bookmark, BookmarkCheck } from "lucide-react-native";
 import { Image, Text, TouchableOpacity, View } from "react-native";
-import ProgressBar from "./ProgressBar";
 
-interface BookButton2Props {
+interface BookButton3Props {
   title: string;
   author: string;
   cover: any;
-  progress: number;
-  totalPages: number;
-  onDelete?: ()=>void;
+  saved: boolean;
+  genre: string;
+  rating: number;
+  onSave?: ()=>void;
 }
 
-const BookButton2 = ({title , author , cover , progress , totalPages  , onDelete }: BookButton2Props)=>{
+const BookButton3 = ({title , author , cover , genre , saved, rating , onSave }: BookButton3Props)=>{
 
     return (
         
@@ -22,26 +22,23 @@ const BookButton2 = ({title , author , cover , progress , totalPages  , onDelete
                 style={{ width: 90, height: 130, borderRadius: 10, marginLeft: 20 }}
                 resizeMode="stretch" />
             </View>
+
             <View className='flex flex-col ml-3 w-[70%]'>
               <Text className='text-xl font-semibold text-white' numberOfLines={1}>{title.length > 20 ? `${title.slice(0, 15)}...` : title}</Text>
               <Text className='text-lg text-gray-400' numberOfLines={1}>{author.length > 20 ? `${author.slice(0, 15)}...` : author}</Text>
-              <ProgressBar progress={progress}/>
-              <Text className='text-gray-400'>{Math.round(progress * totalPages)}/{totalPages} pages</Text>
-              { progress === 1 && (
-                <View  className="flex flex-row items-center gap-1">
-                  <Text className='text-green-500'>Completed</Text>
-                  <CircleCheck color='green' size={15}/>
-                </View>
-                )
-              }
+              <View className='bg-gray-200 rounded-xl w-[60px] items-center justify-center'>
+                <Text className='text-black text-xs'>{genre}</Text>
+              </View>
+              <Text className="text-gray-400 text-sm mt-2">⭐ {rating}</Text>
             </View>
     
-            <TouchableOpacity className='absolute right-5 top-5  rounded-full'  onPress={onDelete}>
-              <Trash2 color='red' size={20} />
+            <TouchableOpacity className='absolute right-5 top-5  rounded-full'  onPress={onSave}>
+              {!saved ? <Bookmark size={20}/> : <BookmarkCheck size={20} color="#F07900" />}
             </TouchableOpacity>
+            
 
           </TouchableOpacity>
     )
 }
 
-export default BookButton2
+export default BookButton3
