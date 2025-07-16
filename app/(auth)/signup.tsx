@@ -2,14 +2,14 @@
 import { router } from 'expo-router'
 import React, { useState } from 'react'
 import {
-    ActivityIndicator,
-    Alert,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native'
 import { useAuth } from '../../contexts/AuthContext'
 import { SignUpFormData } from '../../types/auth'
@@ -50,7 +50,8 @@ export default function SignUpScreen() {
     const result = await signUp(formData.email, formData.password)
     setLoading(false)
 
-    if (result.success) {        Alert.alert(
+    if (result.success) {        
+      Alert.alert(
           'Success', 
           'Account created successfully! Please check your email for verification.',
           [
