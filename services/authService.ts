@@ -1,4 +1,3 @@
-// services/authService.ts
 import { AuthResponse } from '../types/auth'
 import { supabase } from '../utils/supabaseClient'
 

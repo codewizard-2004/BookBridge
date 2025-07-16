@@ -1,4 +1,3 @@
-// (auth)/login.tsx
 import { router } from 'expo-router'
 import React, { useState } from 'react'
 import {
