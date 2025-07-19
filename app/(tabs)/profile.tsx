@@ -1,8 +1,11 @@
 import Stats from '@/components/Stats';
-import { CircleUserRound, UserRoundCheck, UserRoundPlus } from 'lucide-react-native';
+import { CircleUserRound, LogOut, ShieldAlert, User, UserRoundCheck, UserRoundPlus } from 'lucide-react-native';
 import React, { useState } from 'react';
-import { Image, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Image, Text, TouchableOpacity, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
+import { achievements } from '@/constants/achievements';
+import Achievement from '@/components/Achievement';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface profileProps {
   me? : boolean;
@@ -13,9 +16,24 @@ const profile = ({me = true , followed = false}) => {
   
   const [selected , setSelected] = useState(followed)
   const avatar = "https://avatar.iran.liara.run/public/18";
+  const {signOut} = useAuth();
+  const [loading, setLoading] = useState(false);
+
+  const handleLogout = async () => {
+    console.log("Logout clicked");
+    if (loading) return; // Prevent multiple clicks
+    try {
+      setLoading(true);
+      const result = await signOut();
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }finally{
+      setLoading(false);
+    }
+  }
 
   return (
-    <ScrollView className="bg-background flex-1 flex-col" contentContainerStyle={{alignItems:"center"}}>
+    <ScrollView className="bg-background flex-1 flex-col" contentContainerStyle={{alignItems:"center" , paddingBottom: 100}}>
 
       <View className='w-full flex flex-row m-5 items-center gap-20'>
         <View className='flex flex-row ml-5'>
@@ -82,7 +100,37 @@ const profile = ({me = true , followed = false}) => {
 
         <View className='w-full flex flex-col'>
           <Text className='text-2xl m-5 text-primary font-semibold'>Achievements</Text>
+          <View className='flex flex-row flex-wrap gap-2 justify-center items-center'>
+            {achievements.map((achievement, index) => (
+              <Achievement key={achievement.id} index={index} icon={achievement.icon} title={achievement.title} description={achievement.description} />
+            ))}
+          </View>
         </View>
+
+        {me && (
+        <View className='w-full flex flex-col justify-center items-center gap-4 mt-5'>
+          <TouchableOpacity className='flex flex-row bg-primary rounded-xl w-[90%] items-center p-2'>
+            <User size={24} color="white" className='ml-5'/>
+            <Text className='text-white text-center text-lg font-semibold p-2'>Edit Profile</Text>
+          </TouchableOpacity>
+          <TouchableOpacity className='flex flex-row bg-primary rounded-xl w-[90%] items-center p-2'>
+            <ShieldAlert size={24} color="white" className='ml-5'/>
+            <Text className='text-white text-center text-lg font-semibold p-2'>Privacy and safety</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            className={`flex flex-row bg-secondary rounded-xl w-[90%] items-center p-2 ${loading && "justify-center"}`}
+            onPress={handleLogout}>
+            {loading ? (
+              <ActivityIndicator color="white" size={"large"}/>):
+              (
+                <>
+                <LogOut size={24} color="white" className='ml-5' onPress={handleLogout}/>
+                <Text className='text-white text-center text-lg font-semibold p-2'>Log out</Text>
+                </>
+              )}
+          </TouchableOpacity>
+        </View>
+        )}
     </ScrollView>
   )
 }

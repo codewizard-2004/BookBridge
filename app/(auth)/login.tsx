@@ -11,6 +11,7 @@ import {
 } from 'react-native'
 import { useAuth } from '../../contexts/AuthContext'
 import { LoginFormData } from '../../types/auth'
+import CustomModal from '@/components/CustomModal'
 
 export default function LoginScreen() {
   const [formData, setFormData] = useState<LoginFormData>({
@@ -18,6 +19,8 @@ export default function LoginScreen() {
     password: ''
   })
   const [loading, setLoading] = useState<boolean>(false)
+  const [modelOpen , setModalOpen] = useState<boolean>(false)
+  const [errorMessage, setErrorMessage] = useState<string>('')
   const { signIn } = useAuth()
 
   const handleInputChange = (field: keyof LoginFormData, value: string) => {
@@ -29,7 +32,9 @@ export default function LoginScreen() {
 
   const handleLogin = async (): Promise<void> => {
     if (!formData.email || !formData.password) {
-      Alert.alert('Error', 'Please fill in all fields')
+      //Alert.alert('Error', 'Please fill in all fields')
+      setErrorMessage('Please fill in all fields')
+      setModalOpen(true);
       return
     }
 
@@ -41,12 +46,20 @@ export default function LoginScreen() {
       console.log('Login successful')
       // Navigation will be handled by auth state change
     } else {
-      Alert.alert('Login Failed', result.error || 'Unknown error')
+      //Alert.alert('Login Failed', result.error || 'Unknown error')
+      setErrorMessage(result.error || "Unknown Error occured!");
+      setModalOpen(true);
     }
   }
 
   return (
     <View style={styles.container}>
+      <CustomModal 
+        text={errorMessage} 
+        title="Login Failed" 
+        visible={modelOpen} 
+        onPress={() => setModalOpen(false)}
+      />
       <Text style={styles.title}>Welcome Back</Text>
       <Text style={styles.subtitle}>Sign in to continue reading</Text>
       
@@ -127,13 +140,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#1a1a1a',
     color: '#fff',
     padding: 15,
-    borderRadius: 5,
+    borderRadius: 10,
     fontSize: 16,
   },
   button: {
     backgroundColor: '#F07900',
     padding: 15,
-    borderRadius: 5,
+    borderRadius: 10,
     marginTop: 30,
     alignItems: 'center',
   },

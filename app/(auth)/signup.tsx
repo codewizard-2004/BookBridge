@@ -12,6 +12,7 @@ import {
 } from 'react-native'
 import { useAuth } from '../../contexts/AuthContext'
 import { SignUpFormData } from '../../types/auth'
+import CustomModal from '@/components/CustomModal'
 
 export default function SignUpScreen() {
   const [formData, setFormData] = useState<SignUpFormData>({
@@ -20,6 +21,8 @@ export default function SignUpScreen() {
     confirmPassword: ''
   })
   const [loading, setLoading] = useState<boolean>(false)
+  const [modelOpen , setModalOpen] = useState<boolean>(false);
+  const [errorMessage , setErrorMessage] = useState<string>('');
   const { signUp } = useAuth()
 
   const handleInputChange = (field: keyof SignUpFormData, value: string) => {
@@ -31,17 +34,23 @@ export default function SignUpScreen() {
 
   const handleSignUp = async (): Promise<void> => {
     if (!formData.email || !formData.password || !formData.confirmPassword) {
-      Alert.alert('Error', 'Please fill in all fields')
+      // Alert.alert('Error', 'Please fill in all fields')
+      setErrorMessage("Please fill in all the fields");
+      setModalOpen(true);
       return
     }
 
     if (formData.password !== formData.confirmPassword) {
-      Alert.alert('Error', 'Passwords do not match')
+      // Alert.alert('Error', 'Passwords do not match')
+      setErrorMessage("Passwords do not match");
+      setModalOpen(true);
       return
     }
 
     if (formData.password.length < 6) {
-      Alert.alert('Error', 'Password must be at least 6 characters long')
+      // Alert.alert('Error', 'Password must be at least 6 characters long')
+      setErrorMessage("Password must be at least 6 characters long");
+      setModalOpen(true);
       return
     }
 
@@ -61,12 +70,20 @@ export default function SignUpScreen() {
           ]
         )
     } else {
-      Alert.alert('Sign Up Failed', result.error || 'Unknown error')
+      // Alert.alert('Sign Up Failed', result.error || 'Unknown error')
+      setErrorMessage(result.error || "Unknown Error occured!");
+      setModalOpen(true);
     }
   }
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      <CustomModal 
+        text={errorMessage} 
+        title="Sign Up Failed" 
+        visible={modelOpen} 
+        onPress={() => setModalOpen(false)}
+        />
       <View style={styles.innerContainer}>
         <Text style={styles.title}>Create Account</Text>
         <Text style={styles.subtitle}>Join our reading community</Text>
@@ -132,6 +149,7 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     backgroundColor: '#000',
+    paddingBottom:20
   },
   innerContainer: {
     flex: 1,
