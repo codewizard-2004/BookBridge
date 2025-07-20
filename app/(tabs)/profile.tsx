@@ -6,6 +6,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { achievements } from '@/constants/achievements';
 import Achievement from '@/components/Achievement';
 import { useAuth } from '@/contexts/AuthContext';
+import { router } from 'expo-router';
 
 interface profileProps {
   me? : boolean;
@@ -109,9 +110,9 @@ const profile = ({me = true , followed = false}) => {
 
         {me && (
         <View className='w-full flex flex-col justify-center items-center gap-4 mt-5'>
-          <TouchableOpacity className='flex flex-row bg-primary rounded-xl w-[90%] items-center p-2'>
+          <TouchableOpacity className='flex flex-row bg-primary rounded-xl w-[90%] items-center p-2' onPress={()  => router.push("/(settings)")}>
             <User size={24} color="white" className='ml-5'/>
-            <Text className='text-white text-center text-lg font-semibold p-2'>Edit Profile</Text>
+            <Text className='text-white text-center text-lg font-semibold p-2'>Account Settings</Text>
           </TouchableOpacity>
           <TouchableOpacity className='flex flex-row bg-primary rounded-xl w-[90%] items-center p-2'>
             <ShieldAlert size={24} color="white" className='ml-5'/>

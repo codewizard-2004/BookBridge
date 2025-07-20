@@ -55,6 +55,10 @@ function AppNavigator() {
         options={{ headerShown: false }} 
       />
       <Stack.Screen 
+        name="(settings)" 
+        options={{ headerShown: false , title: "Settings" }} 
+      />
+      <Stack.Screen 
         name="(tabs)"
         options={{
           headerShown: true,
