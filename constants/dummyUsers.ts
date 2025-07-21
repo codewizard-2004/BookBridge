@@ -1,0 +1,42 @@
+export const dummyUsers = [
+  {
+    id: "0b4e3a1e-0ec4-42bb-9082-bc3a5c4b7a3e",
+    name: "Ananya Roy",
+    booksRead: 47,
+    lastBookRead: "The Silent Patient",
+    avatar:"https://avatar.iran.liara.run/public/11",
+    isFollowing: true,
+  },
+  {
+    id: "d2f3e1bc-4f92-456a-8bd5-987f86fc9b1d",
+    name: "Rahul Mehta",
+    booksRead: 12,
+    lastBookRead: "Atomic Habits",
+    avatar: "https://avatar.iran.liara.run/public/15",
+    isFollowing: false,
+  },
+  {
+    id: "a83051dc-30c9-4f26-b158-5eddd3b3e1c7",
+    name: "Sneha Kapoor",
+    booksRead: 89,
+    lastBookRead: "Sapiens: A Brief History of Humankind",
+    avatar: "https://avatar.iran.liara.run/public/10",
+    isFollowing: true,
+  },
+  {
+    id: "5a1c2",
+    name: "Vikram Joshi",
+    booksRead: 23,
+    lastBookRead: "1984",
+    avatar: "https://avatar.iran.liara.run/public/19",
+    isFollowing: false,
+  },
+  {
+    id: "f4b223d7-3e67-4e38-bba4-58e95c4df1cf",
+    name: "Neha Verma",
+    booksRead: 31,
+    lastBookRead: "Educated",
+    avatar: "https://avatar.iran.liara.run/public/13",
+    isFollowing: true,
+  },
+];

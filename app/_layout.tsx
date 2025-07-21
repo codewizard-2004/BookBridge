@@ -79,6 +79,20 @@ function AppNavigator() {
           headerShown: false
         }}
       />
+      <Stack.Screen 
+        name="privacy/index"
+        options={{
+          title:"Privacy",
+          headerShown: false
+        }}
+      />
+      <Stack.Screen 
+        name="friends/index"
+        options={{
+          title:"Friends",
+          headerShown: false
+        }}
+      />
     </Stack>
   );
 }

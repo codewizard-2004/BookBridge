@@ -1,23 +1,26 @@
+import Achievement from '@/components/Achievement';
 import Stats from '@/components/Stats';
+import { achievements } from '@/constants/achievements';
+import { useAuth } from '@/contexts/AuthContext';
+import { router, useLocalSearchParams } from 'expo-router';
 import { CircleUserRound, LogOut, ShieldAlert, User, UserRoundCheck, UserRoundPlus } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { ActivityIndicator, Image, Text, TouchableOpacity, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
-import { achievements } from '@/constants/achievements';
-import Achievement from '@/components/Achievement';
-import { useAuth } from '@/contexts/AuthContext';
-import { router } from 'expo-router';
 
 interface profileProps {
   me? : boolean;
   followed?: boolean
 }
 
-const profile = ({me = true , followed = false}) => {
+const profile = ({ followed = true}) => {
   
   const [selected , setSelected] = useState(followed)
   const avatar = "https://avatar.iran.liara.run/public/18";
-  const {signOut} = useAuth();
+
+  const {signOut , user} = useAuth();
+  const { userId } = useLocalSearchParams();
+  const me = userId === user?.id;
   const [loading, setLoading] = useState(false);
 
   const handleLogout = async () => {
@@ -45,7 +48,7 @@ const profile = ({me = true , followed = false}) => {
           <View className='flex flex-col ml-5'>
             <Text className='text-white font-semibold text-2xl'>John Doe</Text>
             <Text className='text-gray-400'>john@example.com</Text>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={()=>router.push("/friends")}>
               <Text className='text-gray-400 text-sm'>3 friends</Text>
             </TouchableOpacity>
           </View>
@@ -114,7 +117,7 @@ const profile = ({me = true , followed = false}) => {
             <User size={24} color="white" className='ml-5'/>
             <Text className='text-white text-center text-lg font-semibold p-2'>Account Settings</Text>
           </TouchableOpacity>
-          <TouchableOpacity className='flex flex-row bg-primary rounded-xl w-[90%] items-center p-2'>
+          <TouchableOpacity className='flex flex-row bg-primary rounded-xl w-[90%] items-center p-2' onPress={() => router.push("/privacy")}>
             <ShieldAlert size={24} color="white" className='ml-5'/>
             <Text className='text-white text-center text-lg font-semibold p-2'>Privacy and safety</Text>
           </TouchableOpacity>
