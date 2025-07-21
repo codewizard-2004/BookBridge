@@ -1,4 +1,4 @@
-import { User, Session } from '@supabase/supabase-js'
+import { Session, User } from '@supabase/supabase-js'
 
 export interface AuthResponse {
   success: boolean
@@ -13,6 +13,7 @@ export interface AuthContextType {
   signUp: (email: string, password: string) => Promise<AuthResponse>
   signIn: (email: string, password: string) => Promise<AuthResponse>
   signOut: () => Promise<AuthResponse>
+  changePassword: (newPassword: string) => Promise<AuthResponse>
 }
 
 export interface LoginFormData {

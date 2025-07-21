@@ -1,7 +1,8 @@
-import { Tabs } from 'expo-router';
+import { router, Tabs } from 'expo-router';
 import React from 'react';
 import { Text, View } from 'react-native';
 
+import { useAuth } from '@/contexts/AuthContext';
 import { Bookmark, Home, LibraryBig, User } from 'lucide-react-native';
 
 
@@ -34,6 +35,7 @@ const TopNavigator = () =>{
 }
 
 const _layout = () => {
+  const { user } = useAuth()
   return (
     <Tabs
       screenOptions={{
@@ -91,16 +93,24 @@ const _layout = () => {
         }}
       />
 
-      <Tabs.Screen
-        name='profile'
-        options={{
-          title: "Profile",
-          headerShown: false,
-          tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} text='Profile' Icon={User} />
-          )
-        }}
-      />
+    <Tabs.Screen
+      name='profile'
+      options={{
+        title: "Profile",
+        headerShown: false,
+        tabBarIcon: ({ focused }) => (
+          <TabIcon focused={focused} text='Profile' Icon={User} />
+        )
+      }}
+      listeners={{
+        tabPress: (e) => {
+          e.preventDefault(); // Prevent default tab behavior
+          // Make sure to import 'router' from 'expo-router' at the top if not already
+          // import { router } from 'expo-router';
+          router.push({ pathname: "/(tabs)/profile", params: { userId: user?.id } }) // Navigate explicitly to *your* profile
+        },
+      }}
+    />
 
     </Tabs>
   )

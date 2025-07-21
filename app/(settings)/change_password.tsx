@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
+import CustomModal from '@/components/CustomModal';
+import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
-import CustomModal from '@/components/CustomModal';
+import React, { useState } from 'react';
+import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 export default function ChangePassword() {
   const [oldPassword, setOldPassword] = useState('');
@@ -12,15 +13,14 @@ export default function ChangePassword() {
   const [errorTitle, setErrorTitle] = useState('Error');
   const [modalOpen, setModalOpen] = useState(false);
   const router = useRouter();
+  const { changePassword, signIn, user } = useAuth();
 
-  const handleChangePassword = () => {
+  const handleChangePassword = async () => {
     if (newPassword !== repeatPassword) {
-    //   Alert.alert('Error', 'New passwords do not match.');
         setErrorTitle('Password Mismatch');
         setErrorMessage("New passwords do not match.");
         setModalOpen(true);
         return;
-      return;
     }
 
     if (!oldPassword || !newPassword) {
@@ -29,11 +29,38 @@ export default function ChangePassword() {
         setModalOpen(true);
         return;
     }
+    if (newPassword.length < 6){
+      setErrorTitle("Invalid Length");
+      setErrorMessage("Password must havr atleast 6 characters");
+      setModalOpen(true);
+      return;
+    }
 
-    // Replace with real password update logic (e.g., Supabase or Firebase)
-    // Alert.alert('Success', 'Password changed successfully.');
-    setErrorTitle('Success');
-    setErrorMessage("Password changed successfully.");
+    // Verify old password by re-authenticating
+    if (!user?.email) {
+        setErrorTitle('Error');
+        setErrorMessage("User email not found. Please re-login.");
+        setModalOpen(true);
+        return;
+    }
+    const verify = await signIn(user.email, oldPassword);
+    if (!verify.success) {
+        setErrorTitle('Authentication Failed');
+        setErrorMessage("Current password is incorrect.");
+        setModalOpen(true);
+        return;
+    }
+
+    // Change password
+    const result = await changePassword(newPassword);
+    if (result.success) {
+        setErrorTitle('Success');
+        setErrorMessage("Password changed successfully.");
+        router.push("/(tabs)")
+    } else {
+        setErrorTitle('Error');
+        setErrorMessage(result.error || "Failed to change password.");
+    }
     setModalOpen(true);
   };
 

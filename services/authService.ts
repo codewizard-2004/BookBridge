@@ -69,5 +69,16 @@ export const authService = {
 
   onAuthStateChange: (callback: (event: string, session: any) => void) => {
     return supabase.auth.onAuthStateChange(callback)
-  }
+  },
+
+  changePassword: async (newPassword: string): Promise<AuthResponse> => {
+    try {
+      const { data, error } = await supabase.auth.updateUser({ password: newPassword })
+      if (error) throw error
+      return { success: true, data }
+    } catch (error: any) {
+      console.error('Change password error:', error.message)
+      return { success: false, error: error.message }
+    }
+  },
 }
