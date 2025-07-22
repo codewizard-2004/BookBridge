@@ -1,7 +1,9 @@
+import { Link } from "expo-router";
 import { Bookmark, BookmarkCheck } from "lucide-react-native";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 
 interface BookButton3Props {
+  id: any;
   title: string;
   author: string;
   cover: any;
@@ -11,10 +13,12 @@ interface BookButton3Props {
   onSave?: ()=>void;
 }
 
-const BookButton3 = ({title , author , cover , genre , saved, rating , onSave }: BookButton3Props)=>{
+const BookButton3 = ({id , title , author , cover , genre , saved, rating , onSave }: BookButton3Props)=>{
 
     return (
-        
+        <Link href={`/movies/${id}` as any}
+            asChild
+            >
           <TouchableOpacity className='flex flex-row rounded-xl bg-secondary items-center justify-center w-[90%] h-[150px]'>
             <View>
               <Image 
@@ -38,6 +42,7 @@ const BookButton3 = ({title , author , cover , genre , saved, rating , onSave }:
             
 
           </TouchableOpacity>
+    </Link>
     )
 }
 

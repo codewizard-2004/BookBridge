@@ -1,8 +1,10 @@
+import { Link } from 'expo-router';
 import React from 'react';
 import { Image, Text, TouchableOpacity, View } from 'react-native';
 import ProgressBar from './ProgressBar';
 
 type BookButtonProps = {
+  id: any,
   cover: any; 
   title: string;
   author: string;
@@ -12,8 +14,11 @@ type BookButtonProps = {
   isNew?: boolean;
 };
 
-const BookButton: React.FC<BookButtonProps> = ({ cover, title, author, progress, totalPages }) => {
+const BookButton: React.FC<BookButtonProps> = ({ id=null ,cover, title, author, progress, totalPages }) => {
   return (
+    <Link href={`/movies/${id}` as any}
+    asChild
+    >
     <TouchableOpacity
       className="h-[280px] w-[170px] rounded-xl bg-secondary items-center"
       style={{
@@ -58,7 +63,7 @@ const BookButton: React.FC<BookButtonProps> = ({ cover, title, author, progress,
         </View>
       </View>
     </TouchableOpacity>
-
+    </Link>
   )
 }
 

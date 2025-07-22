@@ -1,8 +1,10 @@
+import { Link } from "expo-router";
 import { CircleCheck, Trash2 } from "lucide-react-native";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 import ProgressBar from "./ProgressBar";
 
 interface BookButton2Props {
+  id: any;
   title: string;
   author: string;
   cover: any;
@@ -11,10 +13,12 @@ interface BookButton2Props {
   onDelete?: ()=>void;
 }
 
-const BookButton2 = ({title , author , cover , progress , totalPages  , onDelete }: BookButton2Props)=>{
+const BookButton2 = ({id, title , author , cover , progress , totalPages  , onDelete }: BookButton2Props)=>{
 
     return (
-        
+        <Link href={`/movies/${id}` as any}
+            asChild
+            >
           <TouchableOpacity className='flex flex-row rounded-xl bg-secondary items-center justify-center w-[90%] h-[150px]'>
             <View>
               <Image 
@@ -41,6 +45,7 @@ const BookButton2 = ({title , author , cover , progress , totalPages  , onDelete
             </TouchableOpacity>
 
           </TouchableOpacity>
+    </Link>
     )
 }
 

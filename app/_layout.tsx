@@ -93,6 +93,13 @@ function AppNavigator() {
           headerShown: false
         }}
       />
+      <Stack.Screen 
+        name="movies/[id]"
+        options={{
+          title:"Movie",
+          headerShown: false
+        }}
+      />
     </Stack>
   );
 }
