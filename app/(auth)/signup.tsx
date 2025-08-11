@@ -1,8 +1,8 @@
+import CustomModal from '@/components/CustomModal'
 import { router } from 'expo-router'
 import React, { useState } from 'react'
 import {
   ActivityIndicator,
-  Alert,
   ScrollView,
   StyleSheet,
   Text,
@@ -10,9 +10,7 @@ import {
   TouchableOpacity,
   View
 } from 'react-native'
-import { useAuth } from '../../contexts/AuthContext'
 import { SignUpFormData } from '../../types/auth'
-import CustomModal from '@/components/CustomModal'
 
 export default function SignUpScreen() {
   const [formData, setFormData] = useState<SignUpFormData>({
@@ -23,7 +21,6 @@ export default function SignUpScreen() {
   const [loading, setLoading] = useState<boolean>(false)
   const [modelOpen , setModalOpen] = useState<boolean>(false);
   const [errorMessage , setErrorMessage] = useState<string>('');
-  const { signUp } = useAuth()
 
   const handleInputChange = (field: keyof SignUpFormData, value: string) => {
     setFormData(prev => ({
@@ -55,25 +52,13 @@ export default function SignUpScreen() {
     }
 
     setLoading(true)
-    const result = await signUp(formData.email, formData.password)
+    router.push({
+      pathname: "./genre",
+      params: { formData: JSON.stringify(formData) }
+    }
+    );
     setLoading(false)
 
-    if (result.success) {        
-      Alert.alert(
-          'Success', 
-          'Account created successfully! Please check your email for verification.',
-          [
-            {
-              text: 'OK',
-              onPress: () => router.back()
-            }
-          ]
-        )
-    } else {
-      // Alert.alert('Sign Up Failed', result.error || 'Unknown error')
-      setErrorMessage(result.error || "Unknown Error occured!");
-      setModalOpen(true);
-    }
   }
 
   return (
@@ -130,7 +115,7 @@ export default function SignUpScreen() {
           {loading ? (
             <ActivityIndicator color="white" />
           ) : (
-            <Text style={styles.buttonText}>Create Account</Text>
+            <Text style={styles.buttonText}>Continue</Text>
           )}
         </TouchableOpacity>
         

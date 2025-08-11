@@ -19,7 +19,9 @@ const index = () => {
           placeholder="Search Books"
           placeholderTextColor={"#B0B0B0"}
           />
-        <TouchableOpacity className='w-[35px] h-[35px] rounded-full bg-primary items-center justify-center'>
+        <TouchableOpacity 
+          onPress={() => router.push("search/barcode")}
+          className='w-[35px] h-[35px] rounded-full bg-primary items-center justify-center'>
           <Camera size={20} color="white" />
         </TouchableOpacity>
 

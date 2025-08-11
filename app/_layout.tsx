@@ -80,6 +80,13 @@ function AppNavigator() {
         }}
       />
       <Stack.Screen 
+        name="search/barcode"
+        options={{
+          title:"Search",
+          headerShown: false
+        }}
+      />
+      <Stack.Screen 
         name="privacy/index"
         options={{
           title:"Privacy",

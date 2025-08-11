@@ -1,11 +1,16 @@
+import CustomModal from '@/components/CustomModal';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { ArrowLeft } from 'lucide-react-native';
 import React, { useState } from 'react';
 import {
+  ActivityIndicator,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
+import { useAuth } from '../../contexts/AuthContext';
 
 const genres = [
   'Fiction', 'Non-Fiction', 'Mystery', 'Romance', 'Sci-Fi',
@@ -14,8 +19,21 @@ const genres = [
   'Horror', 'Adventure'
 ];
 
-const Test = () => {
+type SignUpFormData = {
+  email: string;
+  password: string;
+  confirmPassword: string;
+};
+
+
+const GenreSelection = () => {
   const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
+  const [modelOpen , setModalOpen] = useState<boolean>(false);
+  const [errorMessage , setErrorMessage] = useState<string>('');
+  const [loading , setLoading] = useState<boolean>(false);
+  const { signUp } = useAuth()
+  const { formData } = useLocalSearchParams();
+  const parsedFormData = formData ? JSON.parse(formData as string) as SignUpFormData : null;
 
   const toggleGenre = (genre: string) => { setSelectedGenres([...selectedGenres, genre]);
     if (selectedGenres.includes(genre)) {
@@ -25,15 +43,53 @@ const Test = () => {
     }
   };
 
+  const handleGenre = async() => {
+    if (selectedGenres.length < 3){
+      setErrorMessage("Please select at least 3 genres");
+      setModalOpen(true);
+      return;
+
+    }
+    setLoading(true);
+
+    try {
+      const result = await signUp(parsedFormData?.email ?? "", parsedFormData?.password ??"");
+      if (result.success){
+        router.back();
+      }
+    } catch (error: any) {
+      setErrorMessage(error?.message || String(error) || "Unknown Error occurred!");
+      setModalOpen(true);
+    }finally {
+      setLoading(false);
+    }
+  }
+
   const deselectAll = () => {
     setSelectedGenres([]);
   };
+  const router = useRouter();
 
   return (
+    <View className='flex-1 bg-background pt-10 pl-5'>
+      {/* Header */}
+      <View className="flex-row items-center mb-4 mt-5">
+        <TouchableOpacity onPress={() => router.back()}>
+          <ArrowLeft color="#F07900" size={28} />
+        </TouchableOpacity>
+        <Text className="text-white text-xl font-semibold ml-2">Select Genre</Text>
+      </View>
     <ScrollView contentContainerStyle={styles.container}>
+      
+      <CustomModal
+        text={errorMessage} 
+        title="Invalid" 
+        visible={modelOpen} 
+        onPress={() => setModalOpen(false)}/>
       <Text style={styles.title}>What do you love to read?</Text>
       <Text style={styles.subtitle}>
-        Select your favorite genres to get personalized recommendations
+        Select your favorite genres to get personalized recommendations.
+        Select atleast 3 genres.
       </Text>
 
       <View style={styles.genresContainer}>
@@ -64,32 +120,40 @@ const Test = () => {
 
       
 
-      <TouchableOpacity style={styles.continueButton}>
-        <Text style={styles.continueText}>Continue</Text>
-      </TouchableOpacity>
+      <TouchableOpacity 
+          style={styles.continueButton} 
+          onPress={handleGenre} 
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator color="white" />
+          ) : (
+            <Text style={styles.continueText}>Continue</Text>
+          )}
+        </TouchableOpacity>
 
       {selectedGenres.length > 0 && (
-        <TouchableOpacity style={styles.deselectButton} onPress={deselectAll}>
+        <TouchableOpacity style={styles.deselectButton} onPress={deselectAll} disabled={loading}>
           <Text style={styles.deselectText}>Deselect All</Text>
         </TouchableOpacity>
       )}
     </ScrollView>
+  </View>
   );
 };
 
-export default Test;
+export default GenreSelection;
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
+    padding: 0,
     paddingBottom: 40,
     alignItems: 'center',
-    backgroundColor: '#ffffff',
   },
   title: {
     marginTop: 50,
     fontSize: 20,
-    color: '#000000ff',
+    color: 'white',
     fontWeight: 'bold',
     marginBottom: 5,
   },
@@ -109,7 +173,7 @@ const styles = StyleSheet.create({
   genreButton: {
     paddingVertical: 8,
     paddingHorizontal: 16,
-    backgroundColor: '#f2f2f2',
+    backgroundColor: 'gray',
     borderRadius: 20,
     borderWidth: 1,
     borderColor: '#ccc',
