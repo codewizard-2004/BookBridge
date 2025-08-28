@@ -23,6 +23,12 @@ export default function AuthLayout() {
           headerShown: false,
           title: "Select Genre"
         }}/>
+      <Stack.Screen 
+        name="avatar"
+        options={{
+          headerShown: false,
+          title: "Select an Avatar"
+        }}/>
     </Stack>
   );
 }

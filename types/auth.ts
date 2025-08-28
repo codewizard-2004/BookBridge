@@ -23,6 +23,8 @@ export interface LoginFormData {
 
 export interface SignUpFormData {
   email: string
+  name: string
   password: string
   confirmPassword: string
+  avatar: string
 }

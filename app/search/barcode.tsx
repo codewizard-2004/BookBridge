@@ -1,136 +1,113 @@
-import { BarCodeScannedCallback } from 'expo-barcode-scanner';
-import { BarcodeType, Camera } from 'expo-camera';
-import React, { useEffect, useState } from 'react';
-import { Button, Linking, StyleSheet, Text, View } from 'react-native';
+import { CameraView, useCameraPermissions } from "expo-camera";
+import { router } from "expo-router";
+import { ArrowLeft } from "lucide-react-native";
+import React, { useState } from "react";
+import { Button, Dimensions, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-// Type for scanned data state
-interface ScannedData {
-  type: BarcodeType;
-  data: string;
-}
+const { width } = Dimensions.get("window");
 
-const App: React.FC = () => {
-  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
-  const [scanned, setScanned] = useState<boolean>(false);
-  const [scannedData, setScannedData] = useState<ScannedData | null>(null);
 
-  useEffect(() => {
-    (async () => {
-      const { status } = await Camera.requestCameraPermissionsAsync();
-      setHasPermission(status === 'granted');
-    })();
-  }, []);
+export default function BarcodeScanner() {
+  const [permission, requestPermission] = useCameraPermissions();
+  const [scanned, setScanned] = useState(false);
+  const [data, setData] = useState<string>("");
 
-  // Explicitly type the parameter as BarCodeScannerResult
-  const handleBarCodeScanned: BarCodeScannedCallback = ({ type, data }) => {
+  if (!permission) {
+    return <View />;
+  }
+
+  if (!permission.granted) {
+    return (
+      <View style={styles.center}>
+        <Text style={styles.text}>
+          Camera permission is required to scan barcodes.
+        </Text>
+        <Button title="Grant Permission" onPress={requestPermission} />
+      </View>
+    );
+  }
+
+  const handleBarCodeScanned = ({ data }: { data: string }) => {
     setScanned(true);
-    setScannedData({ type, data });
-    console.log(`Barcode with type ${type} and data ${data} has been scanned!`);
-
-    if (data.startsWith('http')) {
-      Linking.openURL(data).catch((err) => console.error("Couldn't load page", err));
-    }
+    setData(data);
+    console.log("Scanned data:", data);
+    router.back();
   };
-
-  if (hasPermission === null) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.text}>Requesting for camera permission...</Text>
-      </View>
-    );
-  }
-  if (hasPermission === false) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.text}>No access to camera.</Text>
-        <Button
-          title={'Allow Camera'}
-          onPress={async () => {
-            const { status } = await Camera.requestCameraPermissionsAsync();
-            setHasPermission(status === 'granted');
-          }}
-        />
-      </View>
-    );
-  }
 
   return (
     <View style={styles.container}>
-      <Camera
-        onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+      <CameraView
         style={StyleSheet.absoluteFillObject}
-        barCodeScannerSettings={{
-          barCodeTypes: ['qr', 'pdf417', 'ean13', 'code128'],
-        }}
+        facing="back"
+        barcodeScannerSettings={{ barcodeTypes: ["ean13", "ean8"] }}
+        onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
       />
 
+      {/* Top Bar */}
+      <View style={styles.topBar}>
+        <TouchableOpacity className='mt-5' onPress={() => router.back()}>
+          <ArrowLeft size={32} color="#F07900"/>
+        </TouchableOpacity>
+        <Text style={styles.topBarTitle} className="text-primary">ISBN Scanner</Text>
+        <View style={{ width: 24 }} /> 
+      </View>
+
+      {/* Scan area overlay */}
       <View style={styles.overlay}>
         <View style={styles.scanBox} />
       </View>
 
-      {scanned && (
-        <View style={styles.scannedDataContainer}>
-          <Text style={styles.scannedDataText}>Type: {scannedData?.type}</Text>
-          <Text style={styles.scannedDataText} selectable>
-            Data: {scannedData?.data}
-          </Text>
-          <View style={styles.buttonContainer}>
-            <Button title={'Tap to Scan Again'} onPress={() => setScanned(false)} color="#fff" />
-          </View>
-        </View>
-      )}
+      {/* Result */}
     </View>
   );
-};
+}
+
+const boxSize = width * 0.7;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'center',
-    backgroundColor: '#000',
-  },
-  text: {
-    color: 'white',
-    textAlign: 'center',
-  },
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  scanBox: {
-    width: 250,
-    height: 250,
-    borderWidth: 2,
-    borderColor: 'white',
-    borderRadius: 12,
-    opacity: 0.7,
-  },
-  scannedDataContainer: {
-    position: 'absolute',
-    bottom: 0,
+  container: { flex: 1, backgroundColor: "black" },
+  center: { flex: 1, justifyContent: "center", alignItems: "center" },
+  text: { color: "white", fontSize: 16, textAlign: "center" },
+
+  topBar: {
+    position: "absolute",
+    top: 0,
     left: 0,
     right: 0,
-    padding: 20,
-    backgroundColor: 'rgba(0,0,0,0.7)',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    alignItems: 'center',
+    height: 80,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    justifyContent: "space-between",
+    backgroundColor: "rgba(0,0,0,0.4)",
   },
-  scannedDataText: {
-    color: '#fff',
-    fontSize: 16,
-    marginBottom: 10,
-    textAlign: 'center',
+  topBarTitle: {
+    color: "white",
+    fontSize: 18,
+    fontWeight: "600",
+    marginTop: 15
   },
-  buttonContainer: {
-    backgroundColor: '#4CAF50',
-    borderRadius: 10,
-    paddingVertical: 5,
-    paddingHorizontal: 20,
-    marginTop: 10,
-  },
-});
 
-export default App;
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  scanBox: {
+    width: boxSize,
+    height: boxSize * 0.5,
+    borderColor: "#00FF00",
+    borderWidth: 3,
+    borderRadius: 10,
+    backgroundColor: "transparent",
+  },
+  resultBox: {
+    position: "absolute",
+    bottom: 50,
+    alignSelf: "center",
+    backgroundColor: "rgba(0,0,0,0.6)",
+    padding: 16,
+    borderRadius: 8,
+  },
+  resultText: { color: "white", fontSize: 16, textAlign: "center" },
+});

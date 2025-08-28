@@ -15,8 +15,10 @@ import { SignUpFormData } from '../../types/auth'
 export default function SignUpScreen() {
   const [formData, setFormData] = useState<SignUpFormData>({
     email: '',
+    name: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    avatar: ''
   })
   const [loading, setLoading] = useState<boolean>(false)
   const [modelOpen , setModalOpen] = useState<boolean>(false);
@@ -30,7 +32,7 @@ export default function SignUpScreen() {
   }
 
   const handleSignUp = async (): Promise<void> => {
-    if (!formData.email || !formData.password || !formData.confirmPassword) {
+    if (!formData.email || !formData.password || !formData.confirmPassword || !formData.name) {
       // Alert.alert('Error', 'Please fill in all fields')
       setErrorMessage("Please fill in all the fields");
       setModalOpen(true);
@@ -53,7 +55,7 @@ export default function SignUpScreen() {
 
     setLoading(true)
     router.push({
-      pathname: "./genre",
+      pathname: "./avatar",
       params: { formData: JSON.stringify(formData) }
     }
     );
@@ -81,6 +83,17 @@ export default function SignUpScreen() {
           placeholder="Enter email"
           placeholderTextColor="#666"
           keyboardType="email-address"
+          autoCapitalize="none"
+          editable={!loading}
+        />
+        <Text style={styles.label}>Full Name:</Text>
+        <TextInput
+          style={styles.input}
+          value={formData.name}
+          onChangeText={(value) => handleInputChange('name', value)}
+          placeholder="Enter your Full Name"
+          placeholderTextColor="#666"
+          keyboardType="default"
           autoCapitalize="none"
           editable={!loading}
         />
@@ -134,7 +147,7 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     backgroundColor: '#000',
-    paddingBottom:20
+    paddingBottom:100
   },
   innerContainer: {
     flex: 1,

@@ -1,4 +1,6 @@
 import CustomModal from '@/components/CustomModal';
+import { SignUpFormData } from '@/types/auth';
+import { supabase } from '@/utils/supabaseClient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
 import React, { useState } from 'react';
@@ -13,65 +15,95 @@ import {
 import { useAuth } from '../../contexts/AuthContext';
 
 const genres = [
-  'Fiction', 'Non-Fiction', 'Mystery', 'Romance', 'Sci-Fi',
-  'Fantasy', 'Biography', 'History', 'Self-Help', 'Business',
-  'Health', 'Travel', 'Cooking', 'Art', 'Poetry', 'Drama',
-  'Horror', 'Adventure'
+  { id: 1, name: "Fiction" },
+  { id: 2, name: "Non-Fiction" },
+  { id: 3, name: "Mystery" },
+  { id: 4, name: "Thriller" },
+  { id: 5, name: "Fantasy" },
+  { id: 6, name: "Science Fiction" },
+  { id: 7, name: "Romance" },
+  { id: 8, name: "Horror" },
+  { id: 9, name: "Biography" },
+  { id: 10, name: "History" },
+  { id: 11, name: "Poetry" },
+  { id: 12, name: "Self-Help" },
+  { id: 13, name: "Graphic Novel" },
+  { id: 14, name: "Children's" },
+  { id: 15, name: "Young Adult" },
+  { id: 16, name: "Classic" },
+  { id: 17, name: "Adventure" },
+  { id: 18, name: "Philosophy" },
+  { id: 19, name: "Religion" },
+  { id: 20, name: "Science" }
 ];
-
-type SignUpFormData = {
-  email: string;
-  password: string;
-  confirmPassword: string;
-};
 
 
 const GenreSelection = () => {
-  const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
-  const [modelOpen , setModalOpen] = useState<boolean>(false);
-  const [errorMessage , setErrorMessage] = useState<string>('');
-  const [loading , setLoading] = useState<boolean>(false);
-  const { signUp } = useAuth()
+  const [selectedGenres, setSelectedGenres] = useState<number[]>([]);
+  const [modalOpen, setModalOpen] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
+  const { signUp } = useAuth();
   const { formData } = useLocalSearchParams();
   const parsedFormData = formData ? JSON.parse(formData as string) as SignUpFormData : null;
+  console.log("Parsed Form Data: ", parsedFormData);
+  const router = useRouter();
 
-  const toggleGenre = (genre: string) => { setSelectedGenres([...selectedGenres, genre]);
-    if (selectedGenres.includes(genre)) {
-      setSelectedGenres(selectedGenres.filter(g => g !== genre));
+  const toggleGenre = (genreId: number) => {
+    if (selectedGenres.includes(genreId)) {
+      setSelectedGenres(selectedGenres.filter(g => g !== genreId));
     } else if (selectedGenres.length < 3) {
-      setSelectedGenres([...selectedGenres, genre]);
+      setSelectedGenres([...selectedGenres, genreId]);
     }
   };
 
-  const handleGenre = async() => {
-    if (selectedGenres.length < 3){
+  const handleGenre = async () => {
+    if (selectedGenres.length < 3) {
       setErrorMessage("Please select at least 3 genres");
       setModalOpen(true);
       return;
-
     }
     setLoading(true);
 
     try {
-      const result = await signUp(parsedFormData?.email ?? "", parsedFormData?.password ??"");
-      if (result.success){
-        router.back();
+      const result = await signUp(parsedFormData?.email ?? "", parsedFormData?.password ?? "");
+      if (result.success) {
+        console.log(result.data.user?.id);
+        const {data: userData , error: userError} = await supabase.from("USERS").insert({
+          id: result.data.user?.id,
+          name: parsedFormData?.name || "New User",
+          profile_url : parsedFormData?.avatar || "https://avatar.iran.liara.run/public/1"
+        })
+        if (userError){
+          throw userError;
+        }
+        let inserts = [];
+        for (let i =0 ; i<selectedGenres.length; i++){
+          inserts.push({userId: result.data.user?.id, genreId: selectedGenres[i]});
+        }
+        console.log("Inserts" , inserts);
+        const {data , error} = await supabase.from("USER_GENRE").insert(inserts);
+        if (error){
+          throw error;
+        }else{
+          console.log(data);
+        }
+        router.push("/(tabs)");
       }
     } catch (error: any) {
       setErrorMessage(error?.message || String(error) || "Unknown Error occurred!");
       setModalOpen(true);
-    }finally {
+    } finally {
       setLoading(false);
     }
-  }
+  };
 
   const deselectAll = () => {
     setSelectedGenres([]);
   };
-  const router = useRouter();
 
   return (
-    <View className='flex-1 bg-background pt-10 pl-5'>
+    <View className="flex-1 bg-background pt-10 pl-5">
       {/* Header */}
       <View className="flex-row items-center mb-4 mt-5">
         <TouchableOpacity onPress={() => router.back()}>
@@ -79,50 +111,50 @@ const GenreSelection = () => {
         </TouchableOpacity>
         <Text className="text-white text-xl font-semibold ml-2">Select Genre</Text>
       </View>
-    <ScrollView contentContainerStyle={styles.container}>
-      
-      <CustomModal
-        text={errorMessage} 
-        title="Invalid" 
-        visible={modelOpen} 
-        onPress={() => setModalOpen(false)}/>
-      <Text style={styles.title}>What do you love to read?</Text>
-      <Text style={styles.subtitle}>
-        Select your favorite genres to get personalized recommendations.
-        Select atleast 3 genres.
-      </Text>
 
-      <View style={styles.genresContainer}>
-        {genres.map((genre) => (
-          <TouchableOpacity
-            key={genre}
-            style={[
-              styles.genreButton,
-              selectedGenres.includes(genre) && styles.genreSelected,
-            ]}
-            onPress={() => toggleGenre(genre)}
-          >
-            <Text
+      <ScrollView contentContainerStyle={styles.container}>
+        <CustomModal
+          text={errorMessage}
+          title="Error"
+          visible={modalOpen}
+          onPress={() => setModalOpen(false)}
+        />
+
+        <Text style={styles.title}>What do you love to read?</Text>
+        <Text style={styles.subtitle}>
+          Select your favorite genres to get personalized recommendations.  
+          Select at least 3 genres.
+        </Text>
+
+        <View style={styles.genresContainer}>
+          {genres.map((genre) => (
+            <TouchableOpacity
+              key={genre.id}
               style={[
-                styles.genreText,
-                selectedGenres.includes(genre) && styles.genreTextSelected,
+                styles.genreButton,
+                selectedGenres.includes(genre.id) && styles.genreSelected,
               ]}
+              onPress={() => toggleGenre(genre.id)}
             >
-              {genre}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+              <Text
+                style={[
+                  styles.genreText,
+                  selectedGenres.includes(genre.id) && styles.genreTextSelected,
+                ]}
+              >
+                {genre.name}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
 
-      <Text style={styles.counter}>
-        {selectedGenres.length} genres selected
-      </Text>
+        <Text style={styles.counter}>
+          {selectedGenres.length} genres selected
+        </Text>
 
-      
-
-      <TouchableOpacity 
-          style={styles.continueButton} 
-          onPress={handleGenre} 
+        <TouchableOpacity
+          style={styles.continueButton}
+          onPress={handleGenre}
           disabled={loading}
         >
           {loading ? (
@@ -132,13 +164,17 @@ const GenreSelection = () => {
           )}
         </TouchableOpacity>
 
-      {selectedGenres.length > 0 && (
-        <TouchableOpacity style={styles.deselectButton} onPress={deselectAll} disabled={loading}>
-          <Text style={styles.deselectText}>Deselect All</Text>
-        </TouchableOpacity>
-      )}
-    </ScrollView>
-  </View>
+        {selectedGenres.length > 0 && (
+          <TouchableOpacity
+            style={styles.deselectButton}
+            onPress={deselectAll}
+            disabled={loading}
+          >
+            <Text style={styles.deselectText}>Deselect All</Text>
+          </TouchableOpacity>
+        )}
+      </ScrollView>
+    </View>
   );
 };
 
@@ -180,7 +216,7 @@ const styles = StyleSheet.create({
     margin: 5,
   },
   genreSelected: {
-    backgroundColor: '#fffaf4ff',
+    backgroundColor: '#fffaf4',
     borderColor: '#f07900',
   },
   genreText: {
@@ -202,7 +238,6 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 30,
     borderRadius: 10,
-    
   },
   deselectText: {
     color: '#fff',

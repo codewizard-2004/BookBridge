@@ -1,16 +1,15 @@
+import ReadCalendar from '@/components/ReadCalendar'
 import { gifs } from '@/constants/gifs'
 import { router } from 'expo-router'
-import { ArrowLeft} from 'lucide-react-native'
+import { ArrowLeft } from 'lucide-react-native'
 import React from 'react'
-import { View, Text , Image} from 'react-native'
-import ReadCalendar from '@/components/ReadCalendar';
+import { Image, Text, View } from 'react-native'
 
 const index = () => {
-
-    const missed = new Set([
-      '2025-07-04',
-      '2025-07-09',
-      '2025-07-18',
+    const read = new Set([
+      '2025-07-01',
+      '2025-07-02',
+      '2025-07-03',
     ]);
 
   return (
@@ -39,7 +38,7 @@ const index = () => {
             <Text className='text-2xl font-semibold mb-4  ml-5 text-primary'>Streak Calendar</Text>
             <View className='w-[100%]  h-[400px]'>
                <ReadCalendar 
-                missedDates={missed} // Example missed dates
+                readDates={read} // Example read dates
                 startDate="2025-01-01" // Example start date
                 endDate="2025-12-31" // Example end date
             /> 

@@ -1,15 +1,15 @@
+import dayjs from 'dayjs';
 import React from 'react';
 import { View } from 'react-native';
 import { CalendarList } from 'react-native-calendars';
-import dayjs from 'dayjs';
 
 interface ReadCalendarProps {
-  missedDates: Set<string>; // e.g., new Set(["2025-07-04", "2025-07-09"])
+  readDates: Set<string>;   // e.g., new Set(["2025-07-01", "2025-07-02"])
   startDate: string; // Format: "YYYY-MM-DD"
   endDate: string;   // Format: "YYYY-MM-DD"
 }
 
-const ReadCalendar: React.FC<ReadCalendarProps> = ({ missedDates, startDate, endDate }) => {
+const ReadCalendar: React.FC<ReadCalendarProps> = ({ readDates, startDate, endDate }) => {
   const generateMarkedDates = (): { [key: string]: any } => {
     const marked: { [key: string]: any } = {};
     let current = dayjs(startDate);
@@ -18,19 +18,14 @@ const ReadCalendar: React.FC<ReadCalendarProps> = ({ missedDates, startDate, end
     while (current.isSame(end) || current.isBefore(end)) {
       const dateStr = current.format('YYYY-MM-DD');
 
-      marked[dateStr] = missedDates.has(dateStr)
-        ? {
-            marked: true,
-            dotColor: 'gray',
-            selected: true,
-            selectedColor: '#2c2c2e', // Missed - dark gray
-          }
-        : {
-            marked: true,
-            dotColor: '#F07900',
-            selected: true,
-            selectedColor: '#F07900', // Read - orange
-          };
+      if (readDates.has(dateStr)) {
+        marked[dateStr] = {
+          marked: true,
+          dotColor: '#F07900',
+          selected: true,
+          selectedColor: '#F07900', // Read - primary color
+        };
+      }
 
       current = current.add(1, 'day');
     }

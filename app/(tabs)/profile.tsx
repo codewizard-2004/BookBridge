@@ -2,26 +2,43 @@ import Achievement from '@/components/Achievement';
 import Stats from '@/components/Stats';
 import { achievements } from '@/constants/achievements';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/utils/supabaseClient';
 import { router, useLocalSearchParams } from 'expo-router';
 import { CircleUserRound, LogOut, ShieldAlert, User, UserRoundCheck, UserRoundPlus } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { ActivityIndicator, Image, Text, TouchableOpacity, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
-interface profileProps {
-  me? : boolean;
-  followed?: boolean
-}
 
 const profile = ({ followed = true}) => {
   
   const [selected , setSelected] = useState(followed)
-  const avatar = "https://avatar.iran.liara.run/public/18";
 
   const {signOut , user} = useAuth();
   const { userId } = useLocalSearchParams();
   const me = userId === user?.id;
   const [loading, setLoading] = useState(false);
+  //const {userData: authUserData , loading: authUserLoading} = useUser();
+
+  const [userData, setUserData] = useState<any>(null);
+  const [userError, setUserError] = useState<any>(null);
+
+  React.useEffect(() => {
+    const fetchUserData = async () => {
+      const { data, error } = await supabase.from("USERS").select("*").eq("id", userId).single();
+      if (error) {
+        console.error("Error fetching user data:", error);
+        setUserError(error);
+        setUserData(null);
+    } else {
+        console.log("Fetched user data:", data);
+        setUserData(data);
+        setUserError(null);
+    }
+    };
+    fetchUserData();
+  }, [userId]);
+  console.log("User Data: ", userData);
 
   const handleLogout = async () => {
     console.log("Logout clicked");
@@ -41,13 +58,13 @@ const profile = ({ followed = true}) => {
 
       <View className='w-full flex flex-row m-5 items-center gap-20'>
         <View className='flex flex-row ml-5'>
-          {avatar?
-              <Image source={{uri: avatar}} style={{ width: 60, height: 60, borderRadius: 16 }} />:
+          {userData?.profile_url?
+              <Image source={{uri: userData.profile_url}} style={{ width: 60, height: 60, borderRadius: 16 }} />:
               <CircleUserRound size={60} color="#F07900"/>
           }
           <View className='flex flex-col ml-5'>
-            <Text className='text-white font-semibold text-2xl'>John Doe</Text>
-            <Text className='text-gray-400'>john@example.com</Text>
+            <Text className='text-white font-semibold text-2xl'>{userData?.name}</Text>
+            {/* <Text className='text-gray-400'>{user?.email}</Text> */}
             <TouchableOpacity onPress={()=>router.push("/friends")}>
               <Text className='text-gray-400 text-sm'>3 friends</Text>
             </TouchableOpacity>

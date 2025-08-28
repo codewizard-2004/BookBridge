@@ -5,8 +5,6 @@ export const achievements = [
   { id: 4, title: 'Genre Explorer', icon: '🗺️', description: 'Read books from 5 different genres.', unlocked: true },
   { id: 5, title: 'Marathon Reader', icon: '🏃', description: 'Complete a book over 500 pages.', unlocked: true },
   { id: 6, title: 'Night Owl', icon: '🦉', description: 'Log a reading session after midnight.', unlocked: true },
-
-  // NEW ADDITIONS
   { id: 7, title: 'Page Turner', icon: '📄', description: 'Read 1000 pages in total.', unlocked: true },
   { id: 8, title: 'Weekend Warrior', icon: '🛋️', description: 'Read on both Saturday and Sunday.', unlocked: true },
   { id: 9, title: 'Goal Getter', icon: '🎯', description: 'Achieve a weekly reading goal.', unlocked: true },

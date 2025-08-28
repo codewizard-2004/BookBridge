@@ -6,6 +6,7 @@ import { ActivityIndicator, View } from "react-native";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import './globals.css';
 // Import supabase client to ensure polyfill is loaded early
+import { UserProvider } from "@/contexts/UserContext";
 import '@/utils/supabaseClient';
 
 function useProtectedRoute(user: any) {
@@ -114,9 +115,11 @@ function AppNavigator() {
 export default function RootLayout() {
   return (
     <AuthProvider>
-      <GestureHandlerRootView className="bg-background" style={{ flex: 1, backgroundColor: "black" }}>
-        <AppNavigator />
-      </GestureHandlerRootView>
+      <UserProvider>
+        <GestureHandlerRootView className="bg-background" style={{ flex: 1, backgroundColor: "black" }}>
+          <AppNavigator />
+        </GestureHandlerRootView>
+      </UserProvider>
     </AuthProvider>
   );
 }

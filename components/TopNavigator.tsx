@@ -1,5 +1,5 @@
 import { images } from '@/constants/images';
-import { useAuth } from '@/contexts/AuthContext';
+import { useUser } from '@/contexts/UserContext';
 import { useRouter } from 'expo-router';
 import { CircleUserRound, Search } from 'lucide-react-native';
 import React from 'react';
@@ -8,7 +8,7 @@ import { Image, Text, TouchableOpacity, View } from 'react-native';
 const TopNavigator = () => {
   const router = useRouter();
   const avatar = "https://avatar.iran.liara.run/public/18";
-  const { user } = useAuth();
+  const {userData} = useUser();
 
   return (
     <View className="flex-row items-center justify-between px-4 pt-12 pb-3 bg-background shadow">
@@ -29,9 +29,9 @@ const TopNavigator = () => {
           <TouchableOpacity onPress={()=> router.push("/search")}>
             <Search size={24} color="#F07900" />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => router.push({ pathname: "/(tabs)/profile", params: { userId: user?.id } })}>
-            {avatar?
-            <Image source={{uri: avatar}} style={{ width: 32, height: 32, borderRadius: 16 }} />:
+          <TouchableOpacity onPress={() => router.push({ pathname: "/(tabs)/profile", params: { userId: userData?.id } })}>
+            {userData?.profile_url?
+            <Image source={{uri: userData.profile_url}} style={{ width: 32, height: 32, borderRadius: 16 }} />:
             <CircleUserRound size={24} color="#F07900"/>
             }
           </TouchableOpacity>

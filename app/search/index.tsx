@@ -1,7 +1,7 @@
 import SearchHistory from '@/components/SearchHistory'
 import { images } from '@/constants/images'
 import { router } from 'expo-router'
-import { ArrowLeft, Camera, Trash2 } from 'lucide-react-native'
+import { ArrowLeft, Barcode, Search, Trash2 } from 'lucide-react-native'
 import React from 'react'
 import { Image, Pressable, Text, TextInput, TouchableOpacity, View } from 'react-native'
 
@@ -20,9 +20,8 @@ const index = () => {
           placeholderTextColor={"#B0B0B0"}
           />
         <TouchableOpacity 
-          onPress={() => router.push("search/barcode")}
           className='w-[35px] h-[35px] rounded-full bg-primary items-center justify-center'>
-          <Camera size={20} color="white" />
+          <Search size={20} color="white" />
         </TouchableOpacity>
 
       </View>
@@ -57,6 +56,12 @@ const index = () => {
             <Image source={images.SearchImg}  style={{height:300  , width:300}} />
           </View>
         )}
+
+        <TouchableOpacity 
+          onPress={() => router.push("/search/barcode")}
+          className='w-[35px] h-[35px] scale-150 rounded-full bg-primary items-center justify-center absolute bottom-10 right-5'>
+          <Barcode size={20} color="white" />
+        </TouchableOpacity>
     </View>
   )
 }
