@@ -29,6 +29,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
           .single();
 
         if (!error) setUserData(data);
+        console.log("Issue in UserContext",userData);
       }
       setLoading(false);
     };

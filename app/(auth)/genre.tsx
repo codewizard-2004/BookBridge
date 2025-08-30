@@ -46,7 +46,7 @@ const GenreSelection = () => {
   const { signUp } = useAuth();
   const { formData } = useLocalSearchParams();
   const parsedFormData = formData ? JSON.parse(formData as string) as SignUpFormData : null;
-  console.log("Parsed Form Data: ", parsedFormData);
+  
   const router = useRouter();
 
   const toggleGenre = (genreId: number) => {
@@ -68,12 +68,16 @@ const GenreSelection = () => {
     try {
       const result = await signUp(parsedFormData?.email ?? "", parsedFormData?.password ?? "");
       if (result.success) {
-        console.log(result.data.user?.id);
-        const {data: userData , error: userError} = await supabase.from("USERS").insert({
-          id: result.data.user?.id,
+        console.log("User ID: ",result.data.user?.id);
+        console.log("Parsed Form Data: ", parsedFormData);
+        const {data: userData , error: userError} = await supabase.from("USERS").insert([
+          {
+          id: result.data.user.id,
           name: parsedFormData?.name || "New User",
           profile_url : parsedFormData?.avatar || "https://avatar.iran.liara.run/public/1"
-        })
+          }
+        ]).select()
+        console.log("Insert Response:", userData, userError);
         if (userError){
           throw userError;
         }

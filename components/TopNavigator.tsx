@@ -8,7 +8,8 @@ import { Image, Text, TouchableOpacity, View } from 'react-native';
 const TopNavigator = () => {
   const router = useRouter();
   const avatar = "https://avatar.iran.liara.run/public/18";
-  const {userData} = useUser();
+  const { userData } = useUser();
+  console.log("issue in  topnavigator",userData);
 
   return (
     <View className="flex-row items-center justify-between px-4 pt-12 pb-3 bg-background shadow">
