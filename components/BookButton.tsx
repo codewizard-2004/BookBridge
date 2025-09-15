@@ -14,7 +14,14 @@ type BookButtonProps = {
   isNew?: boolean;
 };
 
+
+
 const BookButton: React.FC<BookButtonProps> = ({ id=null ,cover, title, author, progress, totalPages }) => {
+  const safeCover =
+    typeof cover === "string"
+      ? cover.replace("http://", "https://")
+      : "https://via.placeholder.com/170x200.png?text=No+Cover";
+      
   return (
     <Link href={`/movies/${id}` as any}
     asChild
@@ -33,7 +40,7 @@ const BookButton: React.FC<BookButtonProps> = ({ id=null ,cover, title, author, 
       <View style={{ alignItems: 'center', width: '100%' }}>
         <Image 
             resizeMode="stretch"
-            source={cover}
+            source={{ uri: safeCover}}
             style={{
                 width: 170,
                 height: progress > 0 ? 180 : 200,

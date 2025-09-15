@@ -1,8 +1,13 @@
 import BookButton from "@/components/BookButton";
 import ParallaxCarousel from "@/components/ParallaxCarousel";
 import { images } from "@/constants/images";
+import { useUser } from "@/contexts/UserContext";
+import { useBooks } from "@/hooks/useBooks";
+import { useEffect } from "react";
 import { ActivityIndicator, ScrollView, Text, View } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
+import books from "./books";
+import { useRecommendations } from "@/hooks/useRecommendations";
 
 export default function Index() {
 
@@ -68,7 +73,27 @@ export default function Index() {
     }
   ]
 
-  const loading = false; //set to true for loading screen
+   //set to true for loading screen
+  const { userData, loading:userLoading } = useUser() ?? {};
+  console.log(userData);
+  const { recommendedBooks , fetching: loading } = useRecommendations();
+  
+  const renderBook = ({item}: any)=> {
+    const { title , author , imageLinks } = item.volumeInfo;
+    
+    return (
+      <BookButton 
+        id={item.id}
+        cover = { imageLinks?.thumbnail }
+        title = { title }
+        author = { author }
+        progress = { 0 }
+        totalPages = {100}
+        
+      />
+    )
+  }
+
   return (
     <View className="bg-background flex-1">
       {/* IF Data is being loaded we will implement skeletons here */}
@@ -100,16 +125,12 @@ export default function Index() {
         <Text className="text-2xl font-semibold mt-7 text-textPrimary">Recommended For You</Text>
         <FlatList 
           horizontal
-          data={data2}
-          keyExtractor={(item, index) => index.toString()}
+          data={recommendedBooks}
+          keyExtractor={(item) => item.id}
           contentContainerStyle={{ paddingHorizontal: 10 }}
           ItemSeparatorComponent={() => <View style={{ width: 10 }} />} // Gap between items
           showsHorizontalScrollIndicator={false}
-          renderItem={({ item }) => (
-            <BookButton
-              {...item}
-            />
-          )}
+          renderItem={ renderBook }
 
          />
       </ScrollView>
