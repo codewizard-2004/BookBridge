@@ -49,6 +49,8 @@ const _layout = () => {
         tabBarStyle: {
           backgroundColor: "#2A2A2A",
           borderRadius: 50,
+          marginRight: 30,
+          marginLeft: 30,
           marginHorizontal: 10,
           marginBottom: 36,
           height: 52,
@@ -96,6 +98,7 @@ const _layout = () => {
     <Tabs.Screen
       name='profile'
       options={{
+        href: null,
         title: "Profile",
         headerShown: false,
         tabBarIcon: ({ focused }) => (
