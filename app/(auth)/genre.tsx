@@ -69,7 +69,6 @@ const GenreSelection = () => {
       const result = await signUp(parsedFormData?.email ?? "", parsedFormData?.password ?? "");
       if (result.success) {
         console.log("User ID: ",result.data.user?.id);
-        console.log("Parsed Form Data: ", parsedFormData);
         const {data: userData , error: userError} = await supabase.from("USERS").insert([
           {
           id: result.data.user.id,
