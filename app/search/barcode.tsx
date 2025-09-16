@@ -1,23 +1,50 @@
+import { useBooks } from "@/hooks/useBooks";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { router } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
-import React, { useState } from "react";
-import { Button, Dimensions, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  Button,
+  Dimensions,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 const { width } = Dimensions.get("window");
-
+const boxSize = width * 0.7;
 
 export default function BarcodeScanner() {
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
   const [data, setData] = useState<string>("");
 
-  if (!permission) {
-    return <View />;
-  }
+  const { books, fetching } = useBooks({ type: "isbn", query: data });
 
-  if (!permission.granted) {
-    return (
+  // Navigate when books are fetched after scanning
+  useEffect(() => {
+    if (scanned && books && books.length > 0) {
+      const id = books[0].id;
+      router.push({
+        pathname: "/movies/[id]",
+        params: { id, pagesRead: 0 },
+      });
+    }
+  }, [books, scanned]);
+
+  const handleBarCodeScanned = ({ data }: { data: string }) => {
+    setScanned(true);
+    setData(data);
+  };
+
+  // Conditional rendering (no early returns!)
+  let content: React.JSX.Element;
+
+  if (!permission) {
+    content = <View />;
+  } else if (!permission.granted) {
+    content = (
       <View style={styles.center}>
         <Text style={styles.text}>
           Camera permission is required to scan barcodes.
@@ -25,44 +52,44 @@ export default function BarcodeScanner() {
         <Button title="Grant Permission" onPress={requestPermission} />
       </View>
     );
+  } else {
+    content = (
+      <>
+        <CameraView
+          style={StyleSheet.absoluteFillObject}
+          facing="back"
+          barcodeScannerSettings={{ barcodeTypes: ["ean13", "ean8"] }}
+          onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
+        />
+
+        {/* Top Bar */}
+        <View style={styles.topBar}>
+          <TouchableOpacity className="mt-5" onPress={() => router.back()}>
+            <ArrowLeft size={32} color="#F07900" />
+          </TouchableOpacity>
+          <Text style={styles.topBarTitle} className="text-primary">
+            ISBN Scanner
+          </Text>
+          <View style={{ width: 24 }} />
+        </View>
+
+        {/* Scan area overlay */}
+        <View style={styles.overlay}>
+          <View style={styles.scanBox} />
+        </View>
+
+        {/* Optional result debug */}
+        {fetching && (
+          <View style={styles.resultBox}>
+            <Text style={styles.resultText}>Searching book...</Text>
+          </View>
+        )}
+      </>
+    );
   }
 
-  const handleBarCodeScanned = ({ data }: { data: string }) => {
-    setScanned(true);
-    setData(data);
-    console.log("Scanned data:", data);
-    router.back();
-  };
-
-  return (
-    <View style={styles.container}>
-      <CameraView
-        style={StyleSheet.absoluteFillObject}
-        facing="back"
-        barcodeScannerSettings={{ barcodeTypes: ["ean13", "ean8"] }}
-        onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
-      />
-
-      {/* Top Bar */}
-      <View style={styles.topBar}>
-        <TouchableOpacity className='mt-5' onPress={() => router.back()}>
-          <ArrowLeft size={32} color="#F07900"/>
-        </TouchableOpacity>
-        <Text style={styles.topBarTitle} className="text-primary">ISBN Scanner</Text>
-        <View style={{ width: 24 }} /> 
-      </View>
-
-      {/* Scan area overlay */}
-      <View style={styles.overlay}>
-        <View style={styles.scanBox} />
-      </View>
-
-      {/* Result */}
-    </View>
-  );
+  return <View style={styles.container}>{content}</View>;
 }
-
-const boxSize = width * 0.7;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "black" },
@@ -85,7 +112,7 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 18,
     fontWeight: "600",
-    marginTop: 15
+    marginTop: 15,
   },
 
   overlay: {

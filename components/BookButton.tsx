@@ -11,20 +11,24 @@ type BookButtonProps = {
   progress: number;
   pagesRead?: number;
   totalPages: number;
-  isNew?: boolean;
+  genre: string;
 };
 
 
 
-const BookButton: React.FC<BookButtonProps> = ({ id=null ,cover, title, author, progress, totalPages }) => {
+const BookButton: React.FC<BookButtonProps> = ({ id ,cover, title, author, progress, totalPages, genre }) => {
   const safeCover =
     typeof cover === "string"
       ? cover.replace("http://", "https://")
       : "https://via.placeholder.com/170x200.png?text=No+Cover";
       
   return (
-    <Link href={`/movies/${id}` as any}
-    asChild
+    <Link 
+     href={{
+      pathname: "/movies/[id]",
+      params: { id, pagesRead: progress ?? 0 },
+  }}
+  asChild
     >
     <TouchableOpacity
       className="h-[280px] w-[170px] rounded-xl bg-secondary items-center"
@@ -61,7 +65,7 @@ const BookButton: React.FC<BookButtonProps> = ({ id=null ,cover, title, author, 
               <View className='flex flex-row items-center gap-2'>
               <Text className='text-gray-400 ml-1 text-xs'>⭐4.2</Text>
               <View className='bg-gray-200 rounded-xl px-2 py-1'>
-                <Text className='text-black text-xs'>Biography</Text>
+                <Text className='text-black text-xs'>{genre}</Text>
               </View>
               </View>
             )

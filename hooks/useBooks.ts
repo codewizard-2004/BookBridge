@@ -2,14 +2,9 @@ import { useEffect, useState } from "react";
 import { useUser } from "@/contexts/UserContext";
 
 type UseBooksOptions =
-  | { type: "recommendations" }
+  | { type: "bookId"; query: string }
   | { type: "search"; query: string }
   | { type: "isbn"; query: string };
-
-const getRandomGenres = (genres: string[], count = 3) => {
-  const shuffled = [...genres].sort(() => 0.5 - Math.random());
-  return shuffled.slice(0, count);
-};
 
 const fetchBooks = async (query: string) => {
   const API_KEY = process.env.EXPO_PUBLIC_GOOGLE_API_KEY;
@@ -28,6 +23,19 @@ const fetchBooks = async (query: string) => {
   }
 };
 
+const fetchBookById = async (id: string) => {
+  const API_KEY = process.env.EXPO_PUBLIC_GOOGLE_API_KEY;
+  const url = `https://www.googleapis.com/books/v1/volumes/${id}?key=${API_KEY}`;
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    return data ? [data] : [];
+  } catch (err) {
+    console.error(`Error fetching book by id "${id}":`, err);
+    return [];
+  }
+};
+
 export const useBooks = (options: UseBooksOptions) => {
   const { userData, loading } = useUser() ?? {};
   const [books, setBooks] = useState<any[]>([]);
@@ -37,16 +45,13 @@ export const useBooks = (options: UseBooksOptions) => {
     const loadBooks = async () => {
       setFetching(true);
       let results: any[] = [];
+      if (options.query.length == 0) {
+        return;
+      }
 
-      if (options.type === "recommendations") {
+      if (options.type === "bookId") {
         if (!loading && userData?.favoriteGenres?.length > 0) {
-          const randomGenres = getRandomGenres(userData.favoriteGenres, 3);
-          const promises = randomGenres.map((g) =>{
-            fetchBooks(`subject:${g}`)
-          }
-          );
-          const genreResults = await Promise.all(promises);
-          results = genreResults.flat().sort(() => 0.5 - Math.random());
+          results = await fetchBookById(options.query)
         }
       } else if (options.type === "search") {
         results = await fetchBooks(options.query);

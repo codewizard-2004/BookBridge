@@ -1,6 +1,7 @@
 import ProgressBar from '@/components/ProgressBar'
 import { images } from '@/constants/images'
-import { router } from 'expo-router'
+import { useBooks } from '@/hooks/useBooks'
+import { router, useLocalSearchParams } from 'expo-router'
 import {
   ArrowLeft,
   Bookmark,
@@ -10,6 +11,7 @@ import {
 } from 'lucide-react-native'
 import React, { useState } from 'react'
 import {
+  ActivityIndicator,
   Image,
   Text,
   TextInput,
@@ -17,17 +19,34 @@ import {
   View
 } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
+import { Float } from 'react-native/Libraries/Types/CodegenTypes'
 
-const MovieInfo = () => {
+interface MovieInfoProps {
+  description: string;
+  language: string;
+  publisher: string;
+  pageCount: number;
+  rating: Float;
+  categories: Array<string>;
+}
+
+const MovieInfo = ({ description, language, publisher, pageCount, rating, categories }: MovieInfoProps) => {
+  
   return (
       <View className='w-[90%] items-center justify-center mt-5 flex flex-col'>
           <Text className='text-white text-center'>
-            The story follows Harry, an orphaned boy who discovers he's a wizard and is invited to attend Hogwarts School of Witchcraft and Wizardry. 
-            He learns of his parents' murder by the evil Lord Voldemort and becomes entangled in a battle against him. 
+           {description || "Description of this book is currently not available"}
           </Text>
           <View className='w-full flex flex-row gap-2 mt-5 flex-wrap'>
-            <Text className='bg-gray-200 p-2 rounded-xl text-sm text-black'>Novel</Text>
-            <Text className='bg-gray-200 p-2 rounded-xl text-sm text-black'>Fiction</Text>
+            {categories.map((item) => (
+              <Text key={item} className='bg-gray-200 p-2 rounded-xl text-sm text-black'>{item}</Text>
+            ))}
+          </View>
+          <View className='w-[90%] justify-center mt-5 flex flex-col'>
+            <Text className='text-gray-400 text-lg'>Language: {language}</Text>
+            <Text className='text-gray-400 text-lg'>Publishing Agency: {publisher}</Text>
+            <Text className='text-gray-400 text-lg'>Total Pages: {pageCount}</Text>
+            <Text className='text-gray-400 text-lg'>⭐{rating}</Text> 
           </View>
        </View>
   )
@@ -96,6 +115,22 @@ const MovieDisplay = () => {
   const [selectedTab, setSelectedTab] = React.useState('info');
   const [saved , setSaved] = useState(false);
   const avatar = "https://avatar.iran.liara.run/public/18";
+  const { id , pagesRead } = useLocalSearchParams();
+  const {books , fetching } = useBooks({type: "bookId" , query:id});
+  const {
+    title,
+    authors = [],
+    publisher = "Unknown publisher",
+    publishedDate = "Unknown date",
+    description = "No description available",
+    categories = [],
+    averageRating = 1.3,
+    pageCount = 0,
+    language = "en",
+    imageLinks = {},
+  } = books.length > 0 ? books[0].volumeInfo : {};
+
+
   const [comments, setComments] = useState([
     {
       id: 1,
@@ -127,6 +162,12 @@ const MovieDisplay = () => {
   ]);
   return (
     <ScrollView className="bg-background flex-1 flex-col" contentContainerStyle={{alignItems:"center" , paddingBottom: selectedTab == "comments"? 400:100}}>
+      {fetching? 
+        <View className='h-full w-full mt-10'>
+          <ActivityIndicator size={"large"} color={"#F07900"}/>
+        </View>
+      :
+      <>
         <View className='w-[95%] flex flex-row mt-10 bg-background justify-between items-center'>
             <TouchableOpacity onPress={()=>router.back()}>
                 <ArrowLeft size={32} color={"#F07900"}/>
@@ -140,19 +181,24 @@ const MovieDisplay = () => {
             </TouchableOpacity>
         </View>
         <View className='w-full mt-5 items-center justify-center'>
-          <Image source={images.HP} resizeMode="stretch" style={{height: 400, width:"90%", borderRadius: 10}} />
+          <Image source={{uri:imageLinks?.thumbnail}} resizeMode="stretch" style={{height: 400, width:"90%", borderRadius: 10}} />
         </View>
         <View className='w-full justify-center items-center text-center'>
-          <Text className='text-white font-semibold text-3xl text-center mt-3'>Harry Potter</Text>
-          <Text className='text-gray-400 text-lg'>JK Rowling</Text>
+          <Text className='text-white font-semibold text-3xl text-center mt-3'>{title}</Text>
+          <Text className='text-gray-400 text-lg'>{authors}</Text>
+          <Text className='text-gray-400 text-lg'>publishing year:{publishedDate}</Text>
         </View>
 
         <View className='w-full flex justify-center items-center mt-3'>
           <TouchableOpacity className='bg-primary w-[90%] py-3 flex items-center rounded-xl'>
-            <Text className='text-xl text-white'>Continue Reading</Text>
+            <Text className='text-xl text-white'>{pagesRead > 0 ? "Continue Reading" : "Start Reading"}</Text>
           </TouchableOpacity>
-          <ProgressBar progress={0.69} />
-          <Text className='text-gray-400 text-sm mt-1'>69% completed</Text>
+          {pagesRead > 0 && 
+          <>
+            <ProgressBar progress={0.69} />
+            <Text className='text-gray-400 text-sm mt-1'>{pagesRead/pageCount}% completed</Text>
+          </>
+          }
         </View>
         <View className='w-full items-center justify-center mt-2'>
           <View className='w-[90%] bg-secondary flex flex-row justify-around py-3 rounded-xl'>
@@ -169,10 +215,19 @@ const MovieDisplay = () => {
               <Text className='text-white'>Comments</Text>
             </TouchableOpacity>
           </View>
-          { selectedTab === 'info' && <MovieInfo />}
+          { selectedTab === 'info' && <MovieInfo 
+                                        description={description}
+                                        publisher={publisher}
+                                        pageCount={pageCount}
+                                        rating={averageRating}
+                                        language={language}
+                                        categories={categories}
+                                        />}
           { selectedTab === 'comments' && <CommentSection comments={comments} setComments={setComments} avatar={avatar} />}
           
         </View>
+      </>
+}
         
     </ScrollView>
   )

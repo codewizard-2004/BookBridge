@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useUser } from "@/contexts/UserContext";
 
-const getRandomGenres = (genres: string[], count = 3) => {
+const getRandomGenres = (genres: string[], count = 6) => {
   const shuffled = [...genres].sort(() => 0.5 - Math.random());
   return shuffled.slice(0, count);
 };
@@ -10,7 +10,7 @@ const fetchBooksByGenre = async (genre: string) => {
   const API_KEY = process.env.EXPO_PUBLIC_GOOGLE_API_KEY;
   const url = `https://www.googleapis.com/books/v1/volumes?q=subject:${encodeURIComponent(
     genre
-  )}&maxResults=1&key=${API_KEY}`;
+  )}&maxResults=2&key=${API_KEY}`; // Fetch 2 books per genre
 
   try {
     const res = await fetch(url);
@@ -45,8 +45,6 @@ export const useRecommendations = () => {
 
     loadRecommendations();
   }, [loading, userData]);
-
-  console.log("In hook", recommendedBooks)
 
   return { recommendedBooks, fetching };
 };

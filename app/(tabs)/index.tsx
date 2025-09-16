@@ -8,6 +8,7 @@ import { ActivityIndicator, ScrollView, Text, View } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 import books from "./books";
 import { useRecommendations } from "@/hooks/useRecommendations";
+import { useLatest } from "@/hooks/useLatest";
 
 export default function Index() {
 
@@ -42,54 +43,31 @@ export default function Index() {
     }
   ]
 
-  const data2 = [
-    {
-      cover: images.atomicHabits,
-      title: "Atomic Habits",
-      author: "James Clear",
-      progress: 0,
-      totalPages: 100
-    },
-    {
-      cover: images.HP,
-      title: "Harry Potter",
-      author: "JK Rowling",
-      progress: 0,
-      totalPages: 100
-    },
-    {
-      cover: images.LOTR,
-      title: "Lord of the Rings",
-      author: "JJ Tolkien",
-      progress: 0,
-      totalPages: 100
-    },
-    {
-      cover: images.oceanDoor,
-      title: "Beyond the Ocean Door",
-      author: "Amisha Sathi",
-      progress: 0,
-      totalPages: 100
-    }
-  ]
-
    //set to true for loading screen
   const { userData, loading:userLoading } = useUser() ?? {};
   console.log(userData);
   const { recommendedBooks , fetching: loading } = useRecommendations();
+  const { data: latestBooks, loading: latestLoading, error} = useLatest();
   
   const renderBook = ({item}: any)=> {
-    const { title , author , imageLinks } = item.volumeInfo;
+    const { title , authors , imageLinks, categories } = item.volumeInfo;
+    let genre = "";
+    try{
+      genre = categories.length > 0 ? categories[0] : "Unknown";
+    }catch{
+      genre ="Unknown"
+    }
+    
     
     return (
       <BookButton 
         id={item.id}
         cover = { imageLinks?.thumbnail }
         title = { title }
-        author = { author }
+        author = { authors }
         progress = { 0 }
         totalPages = {100}
-        
+        genre={genre}
       />
     )
   }
@@ -126,6 +104,18 @@ export default function Index() {
         <FlatList 
           horizontal
           data={recommendedBooks}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={{ paddingHorizontal: 10 }}
+          ItemSeparatorComponent={() => <View style={{ width: 10 }} />} // Gap between items
+          showsHorizontalScrollIndicator={false}
+          renderItem={ renderBook }
+
+         />
+
+         <Text className="text-2xl font-semibold mt-7 text-textPrimary">Latest Releases</Text>
+        <FlatList 
+          horizontal
+          data={latestBooks}
           keyExtractor={(item) => item.id}
           contentContainerStyle={{ paddingHorizontal: 10 }}
           ItemSeparatorComponent={() => <View style={{ width: 10 }} />} // Gap between items
