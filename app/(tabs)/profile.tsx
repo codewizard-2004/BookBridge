@@ -2,11 +2,12 @@ import Achievement from '@/components/Achievement';
 import Stats from '@/components/Stats';
 import { achievements } from '@/constants/achievements';
 import { useAuth } from '@/contexts/AuthContext';
+import { getMyFriends, getRelationship, respondToRequest, sendFriendRequest } from '@/services/friendsService';
 import { supabase } from '@/utils/supabaseClient';
 import { router, useLocalSearchParams } from 'expo-router';
-import { CircleUserRound, LogOut, ShieldAlert, User, UserRoundCheck, UserRoundPlus } from 'lucide-react-native';
+import { Check, CircleUserRound, Clock, LogOut, ShieldAlert, User, UserRoundCheck, UserRoundPlus, X } from 'lucide-react-native';
 import React, { useState } from 'react';
-import { ActivityIndicator, Image, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, Text, TouchableOpacity, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
 
@@ -22,6 +23,9 @@ const profile = ({ followed = true}) => {
 
   const [userData, setUserData] = useState<any>(null);
   const [userError, setUserError] = useState<any>(null);
+  const [relationship, setRelationship] = useState<any>(null);
+  const [friendsCount, setFriendsCount] = useState(0);
+  const [friendLoading, setFriendLoading] = useState(false);
 
   React.useEffect(() => {
     const fetchUserData = async () => {
@@ -38,7 +42,77 @@ const profile = ({ followed = true}) => {
     };
     fetchUserData();
   }, [userId]);
+
+  // Load relationship and friends count
+  React.useEffect(() => {
+    if (!me && userId) {
+      loadRelationship();
+    }
+    if (me) {
+      loadFriendsCount();
+    }
+  }, [userId, me]);
+
+  const loadRelationship = async () => {
+    try {
+      const rel = await getRelationship(userId as string);
+      setRelationship(rel);
+    } catch (error) {
+      console.error('Error loading relationship:', error);
+    }
+  };
+
+  const loadFriendsCount = async () => {
+    try {
+      const friends = await getMyFriends();
+      setFriendsCount(friends.length);
+    } catch (error) {
+      console.error('Error loading friends count:', error);
+    }
+  };
   console.log("User Data: ", userData);
+
+  const handleAddFriend = async () => {
+    if (!userId) return;
+    setFriendLoading(true);
+    try {
+      await sendFriendRequest(userId as string);
+      Alert.alert('Success', 'Friend request sent!');
+      loadRelationship();
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'Failed to send friend request');
+    } finally {
+      setFriendLoading(false);
+    }
+  };
+
+  const handleAcceptRequest = async () => {
+    if (!relationship?.requestId) return;
+    setFriendLoading(true);
+    try {
+      await respondToRequest(relationship.requestId, 'accepted');
+      Alert.alert('Success', 'Friend request accepted!');
+      loadRelationship();
+    } catch (error) {
+      Alert.alert('Error', 'Failed to accept friend request');
+    } finally {
+      setFriendLoading(false);
+    }
+  };
+
+  const handleDeclineRequest = async () => {
+    if (!relationship?.requestId) return;
+    setFriendLoading(true);
+    try {
+      await respondToRequest(relationship.requestId, 'declined');
+      Alert.alert('Success', 'Friend request declined');
+      loadRelationship();
+    } catch (error) {
+      Alert.alert('Error', 'Failed to decline friend request');
+    } finally {
+      setFriendLoading(false);
+    }
+  };
 
   const handleLogout = async () => {
     console.log("Logout clicked");
@@ -66,19 +140,58 @@ const profile = ({ followed = true}) => {
             <Text className='text-white font-semibold text-2xl'>{userData?.name}</Text>
             {/* <Text className='text-gray-400'>{user?.email}</Text> */}
             <TouchableOpacity onPress={()=>router.push("/friends")}>
-              <Text className='text-gray-400 text-sm'>3 friends</Text>
+              <Text className='text-gray-400 text-sm'>{friendsCount} friends</Text>
             </TouchableOpacity>
           </View>
         </View>
-        {!me && !selected && (
-          <TouchableOpacity onPress={() => setSelected(!selected)} className='rounded-full justify-center items-center mx-3 my-3 w-[35px] h-[35px] bg-white'>
-            <UserRoundPlus size={26} color="black"/>
-          </TouchableOpacity>
-        )}
-        {!me && selected && (
-          <TouchableOpacity onPress={() => setSelected(!selected)} className='rounded-full justify-center bg-secondary items-center mx-3 my-3 w-[35px] h-[35px] '>
-            <UserRoundCheck size={26} color="white"/>
-          </TouchableOpacity>
+        {!me && relationship && (
+          <View className="flex-row gap-2">
+            {relationship.state === 'none' && (
+              <TouchableOpacity 
+                onPress={handleAddFriend}
+                disabled={friendLoading}
+                className='rounded-full justify-center items-center mx-3 my-3 w-[35px] h-[35px] bg-white'
+              >
+                {friendLoading ? (
+                  <ActivityIndicator size="small" color="black" />
+                ) : (
+                  <UserRoundPlus size={26} color="black"/>
+                )}
+              </TouchableOpacity>
+            )}
+            {relationship.state === 'friends' && (
+              <View className='rounded-full justify-center bg-green-600 items-center mx-3 my-3 w-[35px] h-[35px]'>
+                <UserRoundCheck size={26} color="white"/>
+              </View>
+            )}
+            {relationship.state === 'outgoing' && (
+              <View className='rounded-full justify-center bg-orange-500 items-center mx-3 my-3 w-[35px] h-[35px]'>
+                <Clock size={26} color="white"/>
+              </View>
+            )}
+            {relationship.state === 'incoming' && (
+              <View className="flex-row gap-1">
+                <TouchableOpacity 
+                  onPress={handleAcceptRequest}
+                  disabled={friendLoading}
+                  className='rounded-full justify-center bg-green-600 items-center mx-1 my-3 w-[30px] h-[30px]'
+                >
+                  {friendLoading ? (
+                    <ActivityIndicator size="small" color="white" />
+                  ) : (
+                    <Check size={20} color="white"/>
+                  )}
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  onPress={handleDeclineRequest}
+                  disabled={friendLoading}
+                  className='rounded-full justify-center bg-red-600 items-center mx-1 my-3 w-[30px] h-[30px]'
+                >
+                  <X size={20} color="white"/>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
         )}
       </View>
 
