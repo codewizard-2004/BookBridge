@@ -1,6 +1,9 @@
 import ProgressBar from '@/components/ProgressBar'
 import { images } from '@/constants/images'
+import { useUser } from '@/contexts/UserContext'
 import { useBooks } from '@/hooks/useBooks'
+import { useSaveBook } from '@/hooks/useSaveBook'
+import { supabase } from '@/utils/supabaseClient'
 import { router, useLocalSearchParams } from 'expo-router'
 import {
   ArrowLeft,
@@ -130,6 +133,49 @@ const MovieDisplay = () => {
     imageLinks = {},
   } = books.length > 0 ? books[0].volumeInfo : {};
 
+  const { userData, loading:userLoading } = useUser() ?? {};
+
+  const [savedData, setSavedData] = useState<{ data: any; error: any }>({ data: null, error: null });
+  const { saveBook, unsaveBook, isSaved, loading } = useSaveBook({
+      googleId: id,
+      title: title,
+      description: description,
+      author: authors[0],
+      genre: categories[0],
+      rating: averageRating,
+      total_pages: pageCount,
+      cover: imageLinks?.thumbnail,
+      publisher: publisher,
+      year: publishedDate,
+      language: language
+    });
+  const handlePress = () => {
+    if (isSaved || savedData.data) {
+      unsaveBook();
+      setSavedData({data:"", error:""})
+    } else {
+      console.log("check 0")
+      saveBook();
+    }
+  };
+
+  React.useEffect(() => {
+    const fetchSavedData = async () => {
+      if (!userData?.id || !id) return;
+      const { data, error } = await supabase
+        .from("SAVED")
+        .select("userId")
+        .eq("userId", userData.id)
+        .eq("bookId", id)
+        .maybeSingle();
+        console.log(data)
+      setSavedData({ data, error });
+    };
+    fetchSavedData();
+  }, [userData?.id, id]);
+
+
+
 
   const [comments, setComments] = useState([
     {
@@ -172,8 +218,8 @@ const MovieDisplay = () => {
             <TouchableOpacity onPress={()=>router.back()}>
                 <ArrowLeft size={32} color={"#F07900"}/>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => setSaved(!saved)}>
-              { saved ?
+            <TouchableOpacity onPress={handlePress}>
+              { loading? <ActivityIndicator size={"large"}  color={"#F07900"} className='mt-2'/>: isSaved || savedData.data ?
                 <BookmarkCheck
                   size={32} color="#F07900" />:
                 <Bookmark size={32} color="#F07900"/>
