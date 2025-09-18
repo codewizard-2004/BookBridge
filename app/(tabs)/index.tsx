@@ -2,13 +2,11 @@ import BookButton from "@/components/BookButton";
 import ParallaxCarousel from "@/components/ParallaxCarousel";
 import { images } from "@/constants/images";
 import { useUser } from "@/contexts/UserContext";
-import { useBooks } from "@/hooks/useBooks";
-import { useEffect } from "react";
-import { ActivityIndicator, ScrollView, Text, View } from "react-native";
+import { ActivityIndicator, Animated, ScrollView, Text, View } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
-import books from "./books";
 import { useRecommendations } from "@/hooks/useRecommendations";
 import { useLatest } from "@/hooks/useLatest";
+import { useTrendingBooks } from "@/hooks/useTrending";
 
 export default function Index() {
 
@@ -43,11 +41,38 @@ export default function Index() {
     }
   ]
 
+  const Skeleton = () => {
+  const opacity = new Animated.Value(0.3);
+  Animated.loop(
+    Animated.sequence([
+      Animated.timing(opacity, { toValue: 1, duration: 800, useNativeDriver: true }),
+      Animated.timing(opacity, { toValue: 0.3, duration: 800, useNativeDriver: true }),
+    ])
+  ).start();
+
+  return <Animated.View className="h-[280px] w-[170px] bg-secondary rounded-xl" style={{ opacity }} />;
+};
+
+const SecondSlide = () => (
+  <View className="w-[95%] h-[200px] bg-secondary rounded-3xl justify-center items-center">
+    <View className="flex justify-between w-[90%] flex-row">
+      <Text className="text-xl font-semibold text-primary">Weekly Goal</Text>
+      <Text className='text-textSecondary'>3 days left</Text>
+    </View>
+    <View className='w-[100px] h-[100px] rounded-full bg-primary flex flex-col justify-center items-center'>
+        <Text className='text-3xl text-white font-semibold'>110</Text>
+        <Text className='text-white'>/ 150</Text>
+    </View>
+    <Text className='text-textSecondary'>pages read</Text>
+  </View>
+);
+
    //set to true for loading screen
   const { userData, loading:userLoading } = useUser() ?? {};
   console.log(userData);
   const { recommendedBooks , fetching: loading } = useRecommendations();
   const { data: latestBooks, loading: latestLoading, error} = useLatest();
+  const { books: trending , loading: trendLoading , error: trendError} = useTrendingBooks(10);
   
   const renderBook = ({item}: any)=> {
     const { title , authors , imageLinks, categories } = item.volumeInfo;
@@ -79,12 +104,13 @@ export default function Index() {
         <ActivityIndicator size={"large"} className="justify-center items-center h-full" color={"#F07900"} />
       ):(
       <ScrollView className="mt-8 ml-5 flex" contentContainerStyle={{ paddingBottom: 100 }}>
-        <Text className="text-2xl font-semibold text-primary">Welcome Back, John Doe!</Text>
+        <Text className="text-2xl font-semibold text-primary">Welcome Back, {userData?.name}!</Text>
         {/* <View className="w-[95%] h-[200px] bg-secondary mt-5 rounded-3xl">
 
         </View> */}
-        <ParallaxCarousel/>
-        <Text className="text-2xl mt-[-35px] font-semibold text-textPrimary">Continue Reading</Text>
+        {/* <ParallaxCarousel/> */}
+        <SecondSlide />
+        <Text className="text-2xl font-semibold text-textPrimary">Continue Reading</Text>
         <FlatList 
           horizontal
           data={data}
@@ -100,7 +126,30 @@ export default function Index() {
 
          />
 
-        <Text className="text-2xl font-semibold mt-7 text-textPrimary">Recommended For You</Text>
+         <Text className="text-2xl font-semibold mt-7 text-textPrimary">Trending Books</Text>
+        <FlatList 
+          horizontal
+          data={trending}
+          keyExtractor={(item) => item.key}
+          contentContainerStyle={{ paddingHorizontal: 10 }}
+          ItemSeparatorComponent={() => <View style={{ width: 10 }} />} // Gap between items
+          showsHorizontalScrollIndicator={false}
+          renderItem={({item}) => (
+            trendLoading?<Skeleton/>:
+            <BookButton 
+              id={item.key}
+              cover={`https://covers.openlibrary.org/b/id/${item.cover_i}-L.jpg`}
+              title={item.title}
+              author={item.author_name?.join(",") || "Unknown Author"}
+              totalPages={item.number_of_pages || 0}
+              genre={"Unknown genre"}
+              progress={0}
+            />
+          ) }
+
+         />
+
+         <Text className="text-2xl font-semibold mt-7 text-textPrimary">Recommended For You</Text>
         <FlatList 
           horizontal
           data={recommendedBooks}
