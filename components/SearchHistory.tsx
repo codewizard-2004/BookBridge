@@ -4,11 +4,12 @@ import { TouchableOpacity, View, Text } from 'react-native'
 
 interface searchHistoryProps {
     name: string;
+    onPress: any;
 }
 
-const SearchHistory = ({name}:searchHistoryProps) => {
+const SearchHistory = ({name, onPress}:searchHistoryProps) => {
     return (
-        <TouchableOpacity className='flex flex-row ml-3 w-full items-center'>
+        <TouchableOpacity className='flex flex-row ml-3 w-full items-center' onPress={onPress}>
             <View className='w-[10%]'>
                 <Search size={24} color="white" />
             </View>

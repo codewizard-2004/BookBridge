@@ -1,7 +1,10 @@
 import BookButton from '@/components/BookButton'
 import SearchHistory from '@/components/SearchHistory'
 import { images } from '@/constants/images'
+import { useUser } from '@/contexts/UserContext'
 import { useBooks } from '@/hooks/useBooks'
+import { useSearchHistory } from '@/hooks/useSearchHistory'
+import { supabase } from '@/utils/supabaseClient'
 import { router } from 'expo-router'
 import { ArrowLeft, Barcode, Search, Trash2 } from 'lucide-react-native'
 import React, { useState } from 'react'
@@ -11,17 +14,34 @@ import { FlatList } from 'react-native-gesture-handler'
 const index = () => {
 
   const [searchHistory , setSearchHistory] = React.useState<string[]>(["Harry Potter", "Atomic Habits", "Lord of the Rings"]);
+  const { userData } = useUser() || {};
   const [searchItem , setSearchItem] = useState<string>("");
   const [submittedQuery, setSubmittedQuery] = useState("");
   const [searchInitiated, setSearchInitiated] = useState(false);
-
+  const { history , clearHistory } = useSearchHistory();
   const {books , fetching} = useBooks({type:"search" , query:submittedQuery})
   
-  const handleSearch = () => {
-    if (searchItem.trim().length === 0) return;
-    setSearchInitiated(true);
-    setSubmittedQuery(searchItem);
-  };
+  const handleSearch = async (query?: string) => {
+  const searchQuery = query ?? searchItem;
+
+  if (!searchQuery.trim()) return;
+
+  setSearchInitiated(true);
+  setSubmittedQuery(searchQuery);
+  
+  if (!query){
+    const { data, error } = await supabase
+      .from("HISTORY")
+      .insert([{ userId: userData.id, search_item: searchQuery }])
+      .select(); // no .single()
+
+    if (error) {
+      console.error("Error inserting history:", error);
+    } else {
+      console.log("Written to database", data);
+    }
+}
+};
 
 
   const renderBook = ({item}: any)=> {
@@ -50,7 +70,9 @@ const index = () => {
   return (
     <View className='flex-1 items-center w-full bg-background'>
       <View className='w-full mt-10 flex flex-row gap-2 justify-center items-center'>
-        <TouchableOpacity onPress={() => router.back()}>
+        <TouchableOpacity onPress={() => {
+          setSearchInitiated(false);
+          router.back()}}>
           <ArrowLeft size={32} color="#F07900" />
         </TouchableOpacity>
         <TextInput 
@@ -60,8 +82,10 @@ const index = () => {
           value={searchItem}
           onChangeText={(value) => setSearchItem(value)}
           />
-        <TouchableOpacity onPress={handleSearch}
-          className='w-[35px] h-[35px] rounded-full bg-primary items-center justify-center'>
+        <TouchableOpacity 
+          disabled={searchInitiated}
+          onPress={()=>handleSearch()}
+          className={`w-[35px] h-[35px] rounded-full ${!searchInitiated? "bg-primary":"bg-gray-400"} items-center justify-center`}>
           <Search size={20} color="white" />
         </TouchableOpacity>
 
@@ -91,16 +115,16 @@ const index = () => {
             scrollEnabled={true}
           />
         </View>
-      ) : searchHistory.length > 0 ? (
+      ) : history.length > 0 ? (
         <View className='w-full ml-10 mt-3'>
           <Text className='text-xl font-semibold text-white pb-4'>Recent Searches</Text>
           <View className='gap-5'>
-            {searchHistory.map((item, index) => (
-              <SearchHistory key={index} name={item} />
+            {history.map((item, index) => (
+              <SearchHistory key={index} name={item} onPress={()=>handleSearch(item)} />
             ))}
           </View>
           <Pressable
-            onPress={() => setSearchHistory([])}
+            onPress={clearHistory}
             className="bg-primary px-5 py-2 mt-16 rounded-xl w-[90%] items-center justify-center flex flex-row gap-2"
             style={({ pressed }) => ({
               backgroundColor: pressed ? 'red' : '#1A73E8',
