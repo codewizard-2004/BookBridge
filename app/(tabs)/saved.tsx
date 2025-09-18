@@ -1,70 +1,66 @@
 import BookButton3 from '@/components/BookButton3'
 import { images } from '@/constants/images'
-import React, { useState } from 'react'
+import { useUser } from '@/contexts/UserContext'
+import { useSaveBook } from '@/hooks/useSaveBook'
+import { supabase } from '@/utils/supabaseClient'
+import React, { useEffect, useState } from 'react'
 import { ActivityIndicator, FlatList, Image, Text, View } from 'react-native'
 
 const saved = () => {
-  const data = [
-      {
-        id: "1",
-        cover: images.atomicHabits,
-        title: "Atomic Habits",
-        author: "James Clear",
-        genre: "education",
-        rating: 4.2
-      },
-      {
-        id: "2",
-        cover: images.HP,
-        title: "Harry Potter",
-        author: "JK Rowling",
-        genre: "fiction",
-        rating: 4.9
-      },
-      {
-        id: "3",
-        cover: images.LOTR,
-        title: "Lord of the Rings",
-        author: "JJ Tolkien",
-        genre: "fiction",
-        rating: 5.0
-      },
-      {
-        id: "4",
-        cover: images.oceanDoor,
-        title: "Beyond the Ocean Door",
-        author: "Amisha Sathi",
-        genre: "biography",
-        rating: 3.1
-      }
-    ]
+  const { userData , loading: userLoading} = useUser()|| {}
+  const [savedBooks , setSavedBooks] = useState<any[]>([]);
 
-    const loading  = false;
-    const [books, setBooks] = useState(data);
-    const handleDelete = (id: string) => {
-      setBooks(prev => prev.filter(book => book.id !== id));
-    };
+  const unsaveBook = async(bookId:string) => {
+    if (!userData.id) return;
+    try {
+      const { data, error} = await supabase
+      .from("SAVED")
+      .delete()
+      .eq("userId" , userData.id)
+      .eq("bookId" , bookId)
+      .select();
+      if (error) throw new Error(error.message)
+      setSavedBooks(prev => prev.filter(item => item.book.id !== bookId));
+    } catch (error) {
+      console.log("Error while unsaving in saved page\n");
+      console.log(error);
+    }
+
+  }
+
+  useEffect(()=>{
+    const getSavedBooks = async() => {
+      const { data, error } = await supabase
+        .from("SAVED")
+        .select(`
+          book:BOOKS (*)
+        `)
+        .eq("userId", userData.id);
+        setSavedBooks(data ?? [])
+      }
+      getSavedBooks()
+  }, [unsaveBook])
   
   return (
     <View className="bg-background flex-1">
-      {loading ? 
+      {userLoading ? 
         <ActivityIndicator size={"large"} color={"#F07900"}/>:(
           <View className='w-full m-5  bg-background'>
             <Text className='text-primary font-semibold  text-3xl'>Saved Books</Text>
             <FlatList
           className='bg-background'
-          data={books}
-          keyExtractor={item => item.id}
+          data={savedBooks}
+          keyExtractor={item => item.book.id}
           renderItem={({ item }) => (
             <BookButton3
-              title={item.title}
-              author={item.author}
-              cover={item.cover}
-              genre={item.genre}
-              rating={item.rating}
-              saved = {true}
-
-              onSave={() => handleDelete(item.id)}
+              id={item.book.id}
+              saved={true}
+              title={item.book.title}
+              author={item.book.author}
+              cover={item.book.cover}
+              genre={item.book.genre}
+              rating={item.book.rating}
+              onSave={() => unsaveBook(item.book.id)}
             />
           )}
           contentContainerStyle={{ paddingTop: 20, paddingBottom: 120 }}

@@ -13,7 +13,6 @@ import { FlatList } from 'react-native-gesture-handler'
 
 const index = () => {
 
-  const [searchHistory , setSearchHistory] = React.useState<string[]>(["Harry Potter", "Atomic Habits", "Lord of the Rings"]);
   const { userData } = useUser() || {};
   const [searchItem , setSearchItem] = useState<string>("");
   const [submittedQuery, setSubmittedQuery] = useState("");
@@ -33,7 +32,7 @@ const index = () => {
     const { data, error } = await supabase
       .from("HISTORY")
       .insert([{ userId: userData.id, search_item: searchQuery }])
-      .select(); // no .single()
+      .select();
 
     if (error) {
       console.error("Error inserting history:", error);
@@ -83,9 +82,8 @@ const index = () => {
           onChangeText={(value) => setSearchItem(value)}
           />
         <TouchableOpacity 
-          disabled={searchInitiated}
           onPress={()=>handleSearch()}
-          className={`w-[35px] h-[35px] rounded-full ${!searchInitiated? "bg-primary":"bg-gray-400"} items-center justify-center`}>
+          className={`w-[35px] h-[35px] rounded-full bg-primary items-center justify-center`}>
           <Search size={20} color="white" />
         </TouchableOpacity>
 
