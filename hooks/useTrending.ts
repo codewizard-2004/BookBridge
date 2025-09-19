@@ -57,7 +57,7 @@ export function useTrendingBooks(limit: number = 10) {
               key: doc.key,
               title: doc.title,
               author_name: doc.author_name || [],
-              cover_i: doc.cover_i,
+              cover_i: doc.cover_i ? `https://covers.openlibrary.org/b/id/${doc.cover_i}-L.jpg`: null,
               number_of_pages:
                 editionData.number_of_pages || doc.number_of_pages || 0,
               subjects:

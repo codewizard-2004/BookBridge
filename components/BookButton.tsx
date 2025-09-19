@@ -20,7 +20,7 @@ const BookButton: React.FC<BookButtonProps> = ({ id ,cover, title, author, progr
   const safeCover =
     typeof cover === "string"
       ? cover.replace("http://", "https://")
-      : "https://via.placeholder.com/170x200.png?text=No+Cover";
+      : "https://placehold.co/170x200?text=No+Image+Available";
       
   return (
     <Link 

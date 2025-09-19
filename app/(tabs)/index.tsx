@@ -8,6 +8,7 @@ import { useRecommendations } from "@/hooks/useRecommendations";
 import { useLatest } from "@/hooks/useLatest";
 import { useTrendingBooks } from "@/hooks/useTrending";
 import { useState } from "react";
+import { useRecommendation } from "@/hooks/useRecommendation";
 
 export default function Index() {
 
@@ -71,8 +72,10 @@ const SecondSlide = () => (
    //set to true for loading screen
   const { userData, loading:userLoading } = useUser() ?? {};
   console.log(userData);
-  const { recommendedBooks , fetching: loading } = useRecommendations();
+ // const { recommendedBooks , fetching: loading } = useRecommendations();
+  const { recommendedBooks: recommendedBooks2 , fetching: fetching2} = useRecommendation();
   const { data: latestBooks, loading: latestLoading, error} = useLatest();
+  console.log(latestBooks[0].author)
   const { books: trending , loading: trendLoading , error: trendError, refetch: trendingRefetch} = useTrendingBooks(10);
   const [ refreshing , setRefreshing ] = useState(false);
 
@@ -107,9 +110,37 @@ const SecondSlide = () => (
     )
   }
 
+  const renderBook2 = ({item}: any) => (
+    <BookButton 
+      id={item.key}
+      cover={item.cover_i}
+      title={item.title}
+      author={item.author_name?.join(",") || "Unknown Author"}
+      totalPages={item.number_of_pages || 0}
+      genre={"Unknown genre"}
+      progress={0}
+      />
+  )
+
+  const SkeletonArray = () => (
+    <ScrollView 
+      horizontal 
+      showsHorizontalScrollIndicator={false} 
+      >
+        <View className="flex flex-row w-full ml-3 gap-3">
+          <Skeleton/>
+          <Skeleton/>
+          <Skeleton/>
+          <Skeleton/>
+          <Skeleton/>
+          <Skeleton/>
+        </View> 
+    </ScrollView>
+  )
+
   return (
     <View className="bg-background flex-1">
-      {loading ? (
+      {fetching2 ? (
         <ActivityIndicator size={"large"} className="justify-center items-center h-full" color={"#F07900"} />
       ):(
       <ScrollView 
@@ -136,21 +167,32 @@ const SecondSlide = () => (
 
          />
 
+         <Text className="text-2xl font-semibold mt-7 text-textPrimary">Recommended For You </Text>
+         {fetching2? <SkeletonArray/>:
+        <FlatList 
+          horizontal
+          data={recommendedBooks2}
+          keyExtractor={(item) => item.key}
+          contentContainerStyle={{ paddingHorizontal: 10 }}
+          ItemSeparatorComponent={() => <View style={{ width: 10 }} />} // Gap between items
+          showsHorizontalScrollIndicator={false}
+          renderItem={ ({item}) => (
+            <BookButton 
+              id={item.key}
+              cover={item.cover}
+              title={item.title}
+              author={item.author_name?.join(",") || "Unknown Author"}
+              totalPages={item.number_of_pages || 0}
+              genre={item.genre || "Unknown genre"}
+              progress={0}
+            />
+          ) }
+
+         />}
+
          <Text className="text-2xl font-semibold mt-7 text-textPrimary">Trending Books</Text>
          {trendLoading? (
-          <ScrollView 
-            horizontal 
-            showsHorizontalScrollIndicator={false} 
-            >
-              <View className="flex flex-row w-full ml-3 gap-3">
-                <Skeleton/>
-                <Skeleton/>
-                <Skeleton/>
-                <Skeleton/>
-                <Skeleton/>
-                <Skeleton/>
-              </View> 
-          </ScrollView>
+          <SkeletonArray />
          ):
         <FlatList 
           horizontal
@@ -159,32 +201,10 @@ const SecondSlide = () => (
           contentContainerStyle={{ paddingHorizontal: 10 }}
           ItemSeparatorComponent={() => <View style={{ width: 10 }} />} // Gap between items
           showsHorizontalScrollIndicator={false}
-          renderItem={({item}) => (
-            <BookButton 
-              id={item.key}
-              cover={`https://covers.openlibrary.org/b/id/${item.cover_i}-L.jpg`}
-              title={item.title}
-              author={item.author_name?.join(",") || "Unknown Author"}
-              totalPages={item.number_of_pages || 0}
-              genre={"Unknown genre"}
-              progress={0}
-            />
-          ) }
+          renderItem={renderBook2 }
 
          />
         }
-
-         <Text className="text-2xl font-semibold mt-7 text-textPrimary">Recommended For You</Text>
-        <FlatList 
-          horizontal
-          data={recommendedBooks}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={{ paddingHorizontal: 10 }}
-          ItemSeparatorComponent={() => <View style={{ width: 10 }} />} // Gap between items
-          showsHorizontalScrollIndicator={false}
-          renderItem={ renderBook }
-
-         />
 
          <Text className="text-2xl font-semibold mt-7 text-textPrimary">Latest Releases</Text>
         <FlatList 
@@ -194,7 +214,7 @@ const SecondSlide = () => (
           contentContainerStyle={{ paddingHorizontal: 10 }}
           ItemSeparatorComponent={() => <View style={{ width: 10 }} />} // Gap between items
           showsHorizontalScrollIndicator={false}
-          renderItem={ renderBook }
+          renderItem={ renderBook2 }
 
          />
       </ScrollView>
