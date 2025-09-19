@@ -1,12 +1,13 @@
 import BookButton from "@/components/BookButton";
-import ParallaxCarousel from "@/components/ParallaxCarousel";
+//import ParallaxCarousel from "@/components/ParallaxCarousel";
 import { images } from "@/constants/images";
 import { useUser } from "@/contexts/UserContext";
-import { ActivityIndicator, Animated, ScrollView, Text, View } from "react-native";
+import { ActivityIndicator, Animated, RefreshControl, ScrollView, Text, View } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 import { useRecommendations } from "@/hooks/useRecommendations";
 import { useLatest } from "@/hooks/useLatest";
 import { useTrendingBooks } from "@/hooks/useTrending";
+import { useState } from "react";
 
 export default function Index() {
 
@@ -72,7 +73,16 @@ const SecondSlide = () => (
   console.log(userData);
   const { recommendedBooks , fetching: loading } = useRecommendations();
   const { data: latestBooks, loading: latestLoading, error} = useLatest();
-  const { books: trending , loading: trendLoading , error: trendError} = useTrendingBooks(10);
+  const { books: trending , loading: trendLoading , error: trendError, refetch: trendingRefetch} = useTrendingBooks(10);
+  const [ refreshing , setRefreshing ] = useState(false);
+
+  const onRefresh = async () => {
+  setRefreshing(true);
+
+  await trendingRefetch();
+
+  setRefreshing(false);
+};
   
   const renderBook = ({item}: any)=> {
     const { title , authors , imageLinks, categories } = item.volumeInfo;
@@ -99,18 +109,18 @@ const SecondSlide = () => (
 
   return (
     <View className="bg-background flex-1">
-      {/* IF Data is being loaded we will implement skeletons here */}
       {loading ? (
         <ActivityIndicator size={"large"} className="justify-center items-center h-full" color={"#F07900"} />
       ):(
-      <ScrollView className="mt-8 ml-5 flex" contentContainerStyle={{ paddingBottom: 100 }}>
+      <ScrollView 
+        className="mt-8 ml-5 flex" 
+        contentContainerStyle={{ paddingBottom: 100 }}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
         <Text className="text-2xl font-semibold text-primary">Welcome Back, {userData?.name}!</Text>
-        {/* <View className="w-[95%] h-[200px] bg-secondary mt-5 rounded-3xl">
-
-        </View> */}
+      
         {/* <ParallaxCarousel/> */}
         <SecondSlide />
-        <Text className="text-2xl font-semibold text-textPrimary">Continue Reading</Text>
+        <Text className="text-2xl mt-5 font-semibold text-textPrimary">Continue Reading</Text>
         <FlatList 
           horizontal
           data={data}
@@ -127,6 +137,21 @@ const SecondSlide = () => (
          />
 
          <Text className="text-2xl font-semibold mt-7 text-textPrimary">Trending Books</Text>
+         {trendLoading? (
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false} 
+            >
+              <View className="flex flex-row w-full ml-3 gap-3">
+                <Skeleton/>
+                <Skeleton/>
+                <Skeleton/>
+                <Skeleton/>
+                <Skeleton/>
+                <Skeleton/>
+              </View> 
+          </ScrollView>
+         ):
         <FlatList 
           horizontal
           data={trending}
@@ -135,7 +160,6 @@ const SecondSlide = () => (
           ItemSeparatorComponent={() => <View style={{ width: 10 }} />} // Gap between items
           showsHorizontalScrollIndicator={false}
           renderItem={({item}) => (
-            trendLoading?<Skeleton/>:
             <BookButton 
               id={item.key}
               cover={`https://covers.openlibrary.org/b/id/${item.cover_i}-L.jpg`}
@@ -148,6 +172,7 @@ const SecondSlide = () => (
           ) }
 
          />
+        }
 
          <Text className="text-2xl font-semibold mt-7 text-textPrimary">Recommended For You</Text>
         <FlatList 
