@@ -9,6 +9,8 @@ import { useLatest } from "@/hooks/useLatest";
 import { useTrendingBooks } from "@/hooks/useTrending";
 import { useState } from "react";
 import { useRecommendation } from "@/hooks/useRecommendation";
+import { BookOpen, Clock, Medal } from "lucide-react-native";
+import ProgressBar from "@/components/ProgressBar";
 
 export default function Index() {
 
@@ -56,18 +58,83 @@ export default function Index() {
 };
 
 const SecondSlide = () => (
-  <View className="w-[95%] h-[200px] bg-secondary rounded-3xl justify-center items-center">
-    <View className="flex justify-between w-[90%] flex-row">
-      <Text className="text-xl font-semibold text-primary">Weekly Goal</Text>
-      <Text className='text-textSecondary'>3 days left</Text>
+  <View className="w-[95%] h-[350px] mt-2 bg-secondary rounded-3xl p-4">
+    {/* Stats Section */}
+    <View className="flex flex-col gap-4">
+      {/* Reading Time */}
+      <View className="w-full border-b border-gray-600 pb-3">
+        <View className="flex flex-row items-center justify-between mb-2">
+          <View className="flex flex-row items-center gap-3 w-[70%]">
+            <Clock size={20} color="white" />
+            <View>
+              <Text className="text-white font-medium">Reading Time</Text>
+              <Text className="text-xs text-gray-400">180 / 300 min</Text>
+            </View>
+          </View>
+          <Text className="text-sm text-white font-semibold">60%</Text>
+        </View>
+        <ProgressBar progress={0.6} />
+      </View>
+
+      {/* Pages Read */}
+      <View className="w-full border-b border-gray-600 pb-3">
+        <View className="flex flex-row items-center justify-between mb-2">
+          <View className="flex flex-row items-center gap-3 w-[70%]">
+            <BookOpen size={20} color="white" />
+            <View>
+              <Text className="text-white font-medium">Pages Read</Text>
+              <Text className="text-xs text-gray-400">89 / 150 pages</Text>
+            </View>
+          </View>
+          <Text className="text-sm text-white font-semibold">59%</Text>
+        </View>
+        <ProgressBar progress={0.59} />
+      </View>
+
+      {/* Books Finished */}
+      <View className="w-full pb-3 border-b border-gray-600">
+        <View className="flex flex-row items-center justify-between mb-2">
+          <View className="flex flex-row items-center gap-3 w-[70%]">
+            <Medal size={20} color="white" />
+            <View>
+              <Text className="text-white font-medium">Books Finished</Text>
+              <Text className="text-xs text-gray-400">1 / 2 books</Text>
+            </View>
+          </View>
+          <Text className="text-sm text-white font-semibold">50%</Text>
+        </View>
+        <ProgressBar progress={0.5} />
+      </View>
     </View>
-    <View className='w-[100px] h-[100px] rounded-full bg-primary flex flex-col justify-center items-center'>
-        <Text className='text-3xl text-white font-semibold'>110</Text>
-        <Text className='text-white'>/ 150</Text>
+
+    {/* Streak Section */}
+    <View className="mt-4 items-center">
+      <Text className="text-gray-400 text-xs font-semibold mb-2">
+        Streak this week
+      </Text>
+      <View className="flex flex-row justify-between w-full px-2">
+        {[
+          { day: "Mon", icon: "🔥" },
+          { day: "Tue", icon: "🔥" },
+          { day: "Wed", icon: "🔥" },
+          { day: "Thu", icon: "🔥" },
+          { day: "Fri", icon: "❄️" },
+          { day: "Sat", icon: "❄️" },
+          { day: "Sun", icon: "🔥" },
+        ].map(({ day, icon }) => (
+          <View
+            key={day}
+            className="flex flex-col justify-center items-center gap-1"
+          >
+            <Text className="text-lg">{icon}</Text>
+            <Text className="text-xs text-gray-400">{day}</Text>
+          </View>
+        ))}
+      </View>
     </View>
-    <Text className='text-textSecondary'>pages read</Text>
   </View>
 );
+
 
    //set to true for loading screen
   const { userData, loading:userLoading } = useUser() ?? {};
@@ -75,7 +142,7 @@ const SecondSlide = () => (
  // const { recommendedBooks , fetching: loading } = useRecommendations();
   const { recommendedBooks: recommendedBooks2 , fetching: fetching2} = useRecommendation();
   const { data: latestBooks, loading: latestLoading, error} = useLatest();
-  console.log(latestBooks[0].author)
+  console.log(latestBooks[0]?.author)
   const { books: trending , loading: trendLoading , error: trendError, refetch: trendingRefetch} = useTrendingBooks(10);
   const [ refreshing , setRefreshing ] = useState(false);
 
