@@ -1,46 +1,31 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from "react"
 
 export const useLatest = () => {
-  const [data, setData] = useState<any[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<any>("");
+    const [data , setData] = useState<any[]>([]);
+    const [loading , setLoading] = useState<boolean>(false);
+    const [error , setError] = useState<any>("");
+    const API_KEY = process.env.EXPO_PUBLIC_GOOGLE_API_KEY;
+    const url = `https://www.googleapis.com/books/v1/volumes?q=a&orderBy=newest&maxResults=10&key=${API_KEY}`
 
-  // Use sort=new to get latest books
-  const url = `https://openlibrary.org/search.json?q=a&sort=new&limit=10`;
-
-  useEffect(() => {
-    const loadLatest = async () => {
-      try {
-        setLoading(true);
-        const res = await fetch(url);
-        if (!res.ok) {
-          throw new Error(`Open Library API error: ${res.status}`);
+    useEffect(() => {
+        const loadLatest = async() => {
+            try {
+                setLoading(true)
+                const res = await fetch(url);
+                if (!res.ok) {
+                  throw new Error(`Google Books API error: ${res.status}`);
+                }
+                const data = await res.json()
+                setData(data.items || [])
+            } catch (error) {
+                console.log("ERROR in useLatest:\n", error)
+                setError(error)
+            }finally{
+                setLoading(false)
+            }
         }
-        const result = await res.json();
+        loadLatest();
+    }, []);
 
-        const mapped = (result.docs || [])
-          .map((book: any) => ({
-            id: book.key,
-            title: book.title,
-            author: book.author_name?.join(", ") || "Unknown Author",
-            cover: book.cover_i
-              ? `https://covers.openlibrary.org/b/id/${book.cover_i}-L.jpg`
-              : null,
-            year: book.first_publish_year ?? "Unknown",
-            totalPages: book.number_of_pages_median ?? 0,
-          }));
-
-        setData(mapped);
-      } catch (err) {
-        console.error("ERROR in useLatest:\n", err);
-        setError(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadLatest();
-  }, []);
-
-  return { data, loading, error };
-};
+    return { data , loading , error};
+}

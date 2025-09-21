@@ -1,5 +1,6 @@
 import Achievement from '@/components/Achievement';
 import Stats from '@/components/Stats';
+import StatSection from '@/components/StatSection';
 import { achievements } from '@/constants/achievements';
 import { useAuth } from '@/contexts/AuthContext';
 import { getMyFriends, getRelationship, respondToRequest, sendFriendRequest } from '@/services/friendsService';
@@ -196,19 +197,12 @@ const profile = ({ followed = true}) => {
       </View>
 
        {me && (
-          <View className='bg-secondary rounded-xl h-[200px] w-[90%] flex flex-col'>
-            <Text className='text-primary font-semibold text-2xl m-3'>This weeks goal</Text>
-            <View className='flex flex-row m-3'>
-              <View className='w-[100px] h-[100px] flex flex-col justify-center items-center rounded-full bg-primary'>
-                <Text className='text-white font-semibold text-3xl'>110</Text>
-                <Text className='text-white'>/150</Text>
-              </View>
-              <View className='flex flex-col items-center'>
-                <Text className='text-white font-semibold'>Pages Read this week</Text>
-                <Text className='text-white mt-3'>40 pages left</Text>
-                <Text className='text-gray-400'>3 days left</Text>
-              </View>
-            </View>
+          <View className='flex  flex-col w-full'>
+          <Text className='text-primary text-2xl m-5 font-semibold'>This Week's Goals</Text>
+          <View className='ml-3 w-full'>
+            <StatSection />
+          </View>
+          
           </View>
         )}
 

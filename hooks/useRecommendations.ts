@@ -10,7 +10,7 @@ const fetchBooksByGenre = async (genre: string) => {
   const API_KEY = process.env.EXPO_PUBLIC_GOOGLE_API_KEY;
   const url = `https://www.googleapis.com/books/v1/volumes?q=subject:${encodeURIComponent(
     genre
-  )}&maxResults=2&key=${API_KEY}`; // Fetch 2 books per genre
+  )}&maxResults=4&key=${API_KEY}`; // Fetch 2 books per genre
 
   try {
     const res = await fetch(url);

@@ -1,98 +1,57 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 
-type Book = {
-  key: string;
-  title: string;
-  author_name?: string[];
-  cover_i?: number;
-  number_of_pages?: number;
-  subjects?: string[];
-};
+interface GoogleBook { id: string; title: string; authors: string[]; description?: string; categories?: string[]; pageCount?: number; thumbnail?: string; language?: string; publisher?: string; publishedDate?: string; }
 
-export function useTrendingBooks(limit: number = 10) {
-  const [books, setBooks] = useState<Book[]>([]);
-  const [loading, setLoading] = useState(true);
+export const useTrendingBooks = () => {
+  const [books, setBooks] = useState<GoogleBook[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchTrending = useCallback(async () => {
+  const fetchBooks = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
     try {
-      setLoading(true);
-      setError(null);
-
-      const res = await fetch(
-        `https://openlibrary.org/search.json?q=the&sort=editions&limit=${limit}`
+      const response = await fetch(
+        `https://www.googleapis.com/books/v1/volumes?q=bestseller&orderBy=relevance&maxResults=10`
       );
-      if (!res.ok) throw new Error("Failed to fetch trending books");
+      const data = await response.json();
 
-      const data = await res.json();
-      const docs = data.docs || [];
+      if (!data.items) {
+        setBooks([]);
+        return;
+      }
 
-      const enrichedBooks: Book[] = await Promise.all(
-        docs.map(async (doc: any) => {
-          try {
-            const editionKey = doc.cover_edition_key || doc.edition_key?.[0];
-            let editionData: any = {};
-            let workData: any = {};
+      const formattedBooks: GoogleBook[] = data.items.map((item: any) => ({
+        id: item.id,
+        title: item.volumeInfo.title,
+        authors: item.volumeInfo.authors || [],
+        description: item.volumeInfo.description,
+        categories: item.volumeInfo.categories,
+        pageCount: item.volumeInfo.pageCount,
+        thumbnail: item.volumeInfo.imageLinks?.thumbnail?.replace("http:", "https:"),
+        language: item.volumeInfo.language,
+        publisher: item.volumeInfo.publisher,
+        publishedDate: item.volumeInfo.publishedDate,
+      }));
 
-            if (editionKey) {
-              const editionRes = await fetch(
-                `https://openlibrary.org/books/${editionKey}.json`
-              );
-              if (editionRes.ok) {
-                editionData = await editionRes.json();
-              }
-            }
-
-            if (doc.key) {
-              const workRes = await fetch(
-                `https://openlibrary.org${doc.key}.json`
-              );
-              if (workRes.ok) {
-                workData = await workRes.json();
-              }
-            }
-
-            // ✅ Always return a valid shape
-            return {
-              key: doc.key,
-              title: doc.title,
-              author_name: doc.author_name || [],
-              cover_i: doc.cover_i ? `https://covers.openlibrary.org/b/id/${doc.cover_i}-L.jpg`: null,
-              number_of_pages:
-                editionData.number_of_pages || doc.number_of_pages || 0,
-              subjects:
-                editionData.subjects ||
-                workData.subjects ||
-                doc.subject ||
-                [],
-            };
-          } catch (err) {
-            console.warn("Failed to enrich doc:", doc.key, err);
-            return {
-              key: doc.key,
-              title: doc.title,
-              author_name: doc.author_name || [],
-              cover_i: doc.cover_i,
-              number_of_pages: 0,
-              subjects: [],
-            };
-          }
-        })
-      );
-
-      setBooks(enrichedBooks);
-      console.log("Fetched docs:", docs.length);
-      console.log("Enriched:", enrichedBooks.length);
+      setBooks(formattedBooks);
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || "Failed to fetch trending books");
     } finally {
       setLoading(false);
     }
-  }, [limit]);
+  }, []);
 
+  // ✅ Call fetchBooks automatically on mount
   useEffect(() => {
-    fetchTrending();
-  }, [fetchTrending]);
+    fetchBooks();
+  }, [fetchBooks]);
 
-  return { books, loading, error, refetch: fetchTrending };
-}
+  // Expose refresh for manual refresh
+  const refresh = async () => {
+    await fetchBooks();
+  };
+
+  return { books, loading, error, refresh };
+};

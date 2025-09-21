@@ -50,6 +50,7 @@ export const useRecommendation = () => {
         const merged = results.flat().sort(() => 0.5 - Math.random());
 
         setRecommendedBooks(merged);
+        await new Promise(resolve => setTimeout(resolve, 5000));
         setFetching(false);
       }
     };

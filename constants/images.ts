@@ -5,6 +5,7 @@ import oceanDoor from "@/assets/images/oceandoor.jpg";
 import LOGO from "@/assets/logo/logo.png"
 import BookShelfGuy from "@/assets/images/Housebookshelvesbro.png"
 import SearchImg from "@/assets/images/search.png";
+import NoCover from "@/assets/images/nocover.jpeg";
 
 
 export const images = {
@@ -14,6 +15,7 @@ export const images = {
     HP,
     LOGO,
     BookShelfGuy,
-    SearchImg
+    SearchImg,
+    NoCover
 
 }

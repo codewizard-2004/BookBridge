@@ -2,6 +2,7 @@ import { Link } from 'expo-router';
 import React from 'react';
 import { Image, Text, TouchableOpacity, View } from 'react-native';
 import ProgressBar from './ProgressBar';
+import { images } from '@/constants/images';
 
 type BookButtonProps = {
   id: any,
@@ -17,11 +18,11 @@ type BookButtonProps = {
 
 
 const BookButton: React.FC<BookButtonProps> = ({ id ,cover, title, author, progress, totalPages, genre }) => {
+  
   const safeCover =
     typeof cover === "string"
       ? cover.replace("http://", "https://")
-      : "https://placehold.co/170x200?text=No+Image+Available";
-      
+      : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRLx8PkaSqRN3OG9leVVVOIRSfPxyYcl4ZjXA&s";
   return (
     <Link 
      href={{
@@ -64,9 +65,11 @@ const BookButton: React.FC<BookButtonProps> = ({ id ,cover, title, author, progr
             (
               <View className='flex flex-row items-center gap-2'>
               <Text className='text-gray-400 ml-1 text-xs'>⭐4.2</Text>
+              {genre && (
               <View className='bg-gray-200 rounded-xl px-2 py-1'>
                 <Text className='text-black text-xs'>{genre}</Text>
               </View>
+              )}
               </View>
             )
             }
