@@ -27,11 +27,17 @@ export async function cancelOutgoingRequest(requestId: number) {
 export async function removeFriend(friendId: string) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('Not signed in');
+
   const { error } = await supabase
-  .from('friend_requests')
-  .delete()
-  .or(`and(requester_id.eq.${user.id},addressee_id.eq.${friendId}),and(requester_id.eq.${friendId},addressee_id.eq.${user.id})`).eq('status', 'accepted');
-  if (error) throw error;
+    .from('friend_requests')
+    .delete()
+    .eq('status', 'accepted')
+    .or(`and(requester_id.eq.${user.id},addressee_id.eq.${friendId}),and(requester_id.eq.${friendId},addressee_id.eq.${user.id})`);
+    
+  if (error) {
+    console.error('Error removing friend:', error);
+    throw error;
+  }
 
   console.log(`Friend ${friendId} removed for user ${user.id}`);
 }
