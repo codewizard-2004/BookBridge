@@ -4,6 +4,7 @@ import {
   getPendingIncoming,
   getPendingOutgoing,
   getRelationship,
+  removeFriend,
   respondToRequest,
   searchUsersByName,
   sendFriendRequest
@@ -97,6 +98,7 @@ function SearchResultItem({ item, router }: { item: any; router: any }) {
         />
         <View className="flex-1">
           <Text className="text-white font-semibold">{item.name}</Text>
+          <Text className='text-red font-semibold'></Text>
           <Text className="text-gray-400">@{item.name.toLowerCase().replace(/\s+/g, '')}</Text>
         </View>
       </View>
@@ -128,6 +130,12 @@ function FriendsRoute({ router }: { router: any }) {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleFriendRemoved = (removedFriendId: string) => {
+    setFriends(currentFriends =>
+      currentFriends.filter(friend => friend.id !== removedFriendId)
+    );
   };
 
   const handleSearch = async (text: string) => {
@@ -163,22 +171,11 @@ function FriendsRoute({ router }: { router: any }) {
   };
 
   const renderUserItem = ({ item }: { item: any }) => (
-    <TouchableOpacity
-      className="bg-[#1a1a1a] p-4 rounded-xl flex-row justify-between items-center mb-3"
-      onPress={() =>
-        router.push({ pathname: "/(tabs)/profile", params: { userId: item.id } })
-      }>
-      <View className="flex-row items-center space-x-3 gap-2 flex-1">
-        <Image 
-          source={{ uri: item.profile_url || 'https://avatar.iran.liara.run/public/1' }} 
-          style={{ width: 60, height: 60, borderRadius: 16 }} 
-        />
-        <View className="flex-1">
-          <Text className="text-white font-semibold">{item.name}</Text>
-          <Text className="text-gray-400">@{item.name.toLowerCase().replace(/\s+/g, '')}</Text>
-        </View>
-      </View>
-    </TouchableOpacity>
+    <FriendItem 
+      item={item} 
+      router={router} 
+      onFriendRemoved={handleFriendRemoved} 
+    />
   );
 
   const renderSearchResult = ({ item }: { item: any }) => {
@@ -244,6 +241,53 @@ function FriendsRoute({ router }: { router: any }) {
         </View>
         )}
     </View>
+  );
+}
+
+function FriendItem({ item, router, onFriendRemoved }: { item: any; router: any; onFriendRemoved: (id: string) => void }) {
+  const handleRemoveFriend = () => {
+    Alert.alert(
+      "Remove Friend",
+      `Are you sure you want to remove ${item.name}?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Remove",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await removeFriend(item.id);
+              onFriendRemoved(item.id);
+              Alert.alert("Success", `${item.name} has been removed from your friends.`);
+            } catch (error) {
+              Alert.alert("Error", "Failed to remove friend. Please try again.");
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  return (
+    <TouchableOpacity
+      className="bg-[#1a1a1a] p-4 rounded-xl flex-row justify-between items-center mb-3"
+      onPress={() =>
+        router.push({ pathname: "/(tabs)/profile", params: { userId: item.id } })
+      }>
+      <View className="flex-row items-center space-x-3 gap-2 flex-1">
+        <Image 
+          source={{ uri: item.profile_url || 'https://avatar.iran.liara.run/public/1' }} 
+          style={{ width: 60, height: 60, borderRadius: 16 }} 
+        />
+        <View className="flex-1">
+          <Text className="text-white font-semibold">{item.name}</Text>
+          <Text className="text-gray-400">@{item.name.toLowerCase().replace(/\s+/g, '')}</Text>
+        </View>
+      </View>
+      <TouchableOpacity onPress={handleRemoveFriend} className="p-2">
+        <X size={24} color="#E53E3E" />
+      </TouchableOpacity>
+    </TouchableOpacity>
   );
 }
 
