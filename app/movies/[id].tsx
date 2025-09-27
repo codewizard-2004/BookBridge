@@ -1,5 +1,4 @@
 import ProgressBar from '@/components/ProgressBar'
-import { images } from '@/constants/images'
 import { useUser } from '@/contexts/UserContext'
 import { useBooks } from '@/hooks/useBooks'
 import { useSaveBook } from '@/hooks/useSaveBook'
@@ -12,7 +11,7 @@ import {
   Heart,
   Send
 } from 'lucide-react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   ActivityIndicator,
   Image,
@@ -61,7 +60,7 @@ interface CommentSectionProps {
   avatar: string;
 }
 
-const CommentSection = ({comments , setComments, avatar}: CommentSectionProps) => {
+const CommentSection = ({comments , setComments, avatar, newComment, setNewComment, onPost}: any) => {
   return (
     <View className='w-full mt-5 flex flex-col items-center justify-center'>
             <View className='w-[90%] h-[230px] bg-secondary rounded-xl justify-center items-center'>
@@ -71,12 +70,17 @@ const CommentSection = ({comments , setComments, avatar}: CommentSectionProps) =
                   placeholder='Write your thoughts here...' 
                   placeholderTextColor="white"
                   multiline
-                  className='text-white bg-gray-500 w-[80%] h-[130px] mt-5 rounded-xl'
+                  className='text-white bg-gray-500 w-[80%] h-[130px] mt-5 rounded-xl p-2'
                   numberOfLines={4}
                   textAlignVertical='top'
+                  value={newComment}
+                  onChangeText={setNewComment}
                   />
               </View>
-              <TouchableOpacity className='bg-primary w-[80%] ml-7 h-[40px] rounded-xl flex flex-row gap-3 items-center justify-center mt-3'>
+              <TouchableOpacity 
+                className='bg-primary w-[80%] ml-7 h-[40px] rounded-xl flex flex-row gap-3 items-center justify-center mt-3'
+                onPress={onPost}
+              >
                 <Send size={25} color="white"/>
                 <Text className='text-white text-lg'>Post Comment</Text>
               </TouchableOpacity>
@@ -117,7 +121,8 @@ const CommentSection = ({comments , setComments, avatar}: CommentSectionProps) =
 const MovieDisplay = () => {
   const [selectedTab, setSelectedTab] = React.useState('info');
   const [saved , setSaved] = useState(false);
-  const avatar = "https://avatar.iran.liara.run/public/18";
+  const { userData, loading:userLoading } = useUser() ?? {};
+  const avatar = userData?.profile_url || "https://avatar.iran.liara.run/public/18";
   const { id , pagesRead } = useLocalSearchParams();
   const {books , fetching } = useBooks({type: "bookId" , query:id});
   const {
@@ -133,7 +138,7 @@ const MovieDisplay = () => {
     imageLinks = {},
   } = books.length > 0 ? books[0].volumeInfo : {};
 
-  const { userData, loading:userLoading } = useUser() ?? {};
+  
 
   const [savedData, setSavedData] = useState<{ data: any; error: any }>({ data: null, error: null });
   const { saveBook, unsaveBook, isSaved, loading } = useSaveBook({
@@ -174,38 +179,81 @@ const MovieDisplay = () => {
     fetchSavedData();
   }, [userData?.id, id]);
 
+  const [comments, setComments] = useState<any[]>([]);
+  const [newComment, setNewComment] = useState("");
 
+  useEffect(() => {
+    const fetchComments = async () => {
+      if (!id) return;
+      const { data, error } = await supabase
+        .from('COMMENTS')
+        .select(`
+          id,
+          content,
+          created_at,
+          USERS (
+            id,
+            name,
+            profile_url
+          )
+        `)
+        .eq('book_id', id)
+        .order('created_at', { ascending: false });
 
+      if (error) {
+        console.error('Error fetching comments:', error);
+      } else {
+        const formattedComments = data.map(comment => ({
+          id: comment.id,
+          user: comment.USERS?.name,
+          avatar: comment.USERS?.profile_url,
+          comment: comment.content,
+          likes: 0,
+          isLiked: false,
+          timestamp: new Date(comment.created_at).toLocaleDateString()
+        }));
+        setComments(formattedComments);
+      }
+    };
 
-  const [comments, setComments] = useState([
-    {
-      id: 1,
-      user: "WizardFan92",
-      avatar: "https://avatar.iran.liara.run/public/1",
-      comment: "This book is absolutely magical! The flying car scene had me on the edge of my seat. Rowling's world-building is incredible.",
-      likes: 12,
-      isLiked: false,
-      timestamp: "2 hours ago"
-    },
-    {
-      id: 2,
-      user: "BookwormHermione",
-      avatar: "https://avatar.iran.liara.run/public/13",
-      comment: "I love how this book explores themes of friendship and courage. Harry's growth throughout the story is so well written.",
-      likes: 8,
-      isLiked: true,
-      timestamp: "5 hours ago"
-    },
-    {
-      id: 3,
-      user: "PotterHead2024",
-      avatar: "https://avatar.iran.liara.run/public/11",
-      comment: "The Chamber of Secrets mystery kept me guessing until the very end! Tom Riddle's reveal was brilliant.",
-      likes: 15,
-      isLiked: false,
-      timestamp: "1 day ago"
+    fetchComments();
+  }, [id]);
+
+  const handlePostComment = async () => {
+    if (!newComment.trim() || !userData?.id || !id) return;
+
+    const { data, error } = await supabase
+      .from('COMMENTS')
+      .insert([{ content: newComment, user_id: userData.id, book_id: id as string }])
+      .select(`
+        id,
+        content,
+        created_at,
+        USERS (
+          id,
+          name,
+          profile_url
+        )
+      `)
+      .single();
+
+    if (error) {
+      console.error('Error posting comment:', error);
+    } else if (data) {
+      const postedComment = {
+        id: data.id,
+        user: data.USERS?.name,
+        avatar: data.USERS?.profile_url,
+        comment: data.content,
+        likes: 0,
+        isLiked: false,
+        timestamp: new Date(data.created_at).toLocaleDateString()
+      };
+      setComments([postedComment, ...comments]);
+      setNewComment(""); 
     }
-  ]);
+  };
+
   return (
     <ScrollView className="bg-background flex-1 flex-col" contentContainerStyle={{alignItems:"center" , paddingBottom: selectedTab == "comments"? 400:100}}>
       {fetching? 
@@ -269,7 +317,14 @@ const MovieDisplay = () => {
                                         language={language}
                                         categories={categories}
                                         />}
-          { selectedTab === 'comments' && <CommentSection comments={comments} setComments={setComments} avatar={avatar} />}
+          { selectedTab === 'comments' && <CommentSection 
+                                            comments={comments} 
+                                            setComments={setComments} 
+                                            avatar={avatar} 
+                                            newComment={newComment}
+                                            setNewComment={setNewComment}
+                                            onPost={handlePostComment}
+                                          />}
           
         </View>
       </>
