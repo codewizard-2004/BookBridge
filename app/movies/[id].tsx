@@ -60,7 +60,7 @@ interface CommentSectionProps {
   avatar: string;
 }
 
-const CommentSection = ({comments , setComments, avatar, newComment, setNewComment, onPost}: any) => {
+const CommentSection = ({comments , setComments, avatar, newComment, setNewComment, onPost, onDelete, onLike, currentUserId}: any) => {
   return (
     <View className='w-full mt-5 flex flex-col items-center justify-center'>
             <View className='w-[90%] h-[230px] bg-secondary rounded-xl justify-center items-center'>
@@ -93,18 +93,20 @@ const CommentSection = ({comments , setComments, avatar, newComment, setNewComme
                       <Image source={{uri: comment.avatar}} style={{ width: 32, height: 32, borderRadius: 16 }} />
                     </View>
                     <View className='w-[90%]'>
-                      <Text className='text-white font-semibold'>{comment.user}</Text>
+                      <View className='flex flex-row justify-between items-center'>
+                        <Text className='text-white font-semibold'>{comment.user}</Text>
+                        {currentUserId === comment.user_id && (
+                          <TouchableOpacity onPress={() => onDelete(comment.id)}>
+                            <Text className='text-red-500 text-xs'>Delete</Text>
+                          </TouchableOpacity>
+                        )}
+                      </View>
                       <Text className='text-gray-300'>{comment.comment}</Text>
                       <View className='flex flex-row items-center justify-between mt-2'>
                         <Text className='text-gray-400 text-xs'>{comment.timestamp}</Text>
                         <TouchableOpacity 
                           className='flex flex-row items-center gap-1'
-                          onPress={() => {
-                            const updatedComments = comments.map((c: Comment) => 
-                            c.id === comment.id ? {...c, isLiked: !c.isLiked, likes: c.isLiked ? c.likes - 1 : c.likes + 1} : c
-                            );
-                          setComments(updatedComments);
-                        }}>
+                          onPress={() => onLike(comment.id, comment.isLiked)}>
                           <Heart size={20} color={comment.isLiked ? "#F07900" : "#999"} />
                           <Text className={`text-sm ${comment.isLiked ? 'text-primary' : 'text-gray-400'}`}>{comment.likes}</Text>
                         </TouchableOpacity>
@@ -184,17 +186,21 @@ const MovieDisplay = () => {
 
   useEffect(() => {
     const fetchComments = async () => {
-      if (!id) return;
+      if (!id || !userData?.id) return;
       const { data, error } = await supabase
         .from('COMMENTS')
         .select(`
           id,
           content,
           created_at,
-          USERS (
+          user_id,
+          USERS!COMMENTS_user_id_fkey (
             id,
             name,
             profile_url
+          ),
+          COMMENT_LIKES (
+            user_id
           )
         `)
         .eq('book_id', id)
@@ -208,8 +214,9 @@ const MovieDisplay = () => {
           user: comment.USERS?.name,
           avatar: comment.USERS?.profile_url,
           comment: comment.content,
-          likes: 0,
-          isLiked: false,
+          user_id: comment.user_id,
+          likes: comment.COMMENT_LIKES.length,
+          isLiked: comment.COMMENT_LIKES.some(like => like.user_id === userData.id),
           timestamp: new Date(comment.created_at).toLocaleDateString()
         }));
         setComments(formattedComments);
@@ -217,7 +224,7 @@ const MovieDisplay = () => {
     };
 
     fetchComments();
-  }, [id]);
+  }, [id, userData?.id]);
 
   const handlePostComment = async () => {
     if (!newComment.trim() || !userData?.id || !id) return;
@@ -229,7 +236,8 @@ const MovieDisplay = () => {
         id,
         content,
         created_at,
-        USERS (
+        user_id,
+        USERS!COMMENTS_user_id_fkey (
           id,
           name,
           profile_url
@@ -245,12 +253,61 @@ const MovieDisplay = () => {
         user: data.USERS?.name,
         avatar: data.USERS?.profile_url,
         comment: data.content,
+        user_id: data.user_id,
         likes: 0,
         isLiked: false,
         timestamp: new Date(data.created_at).toLocaleDateString()
       };
       setComments([postedComment, ...comments]);
       setNewComment(""); 
+    }
+  };
+
+  const handleDeleteComment = async (commentId: string) => {
+    // Optimistically remove the comment from the UI
+    setComments(comments.filter(c => c.id !== commentId));
+
+    const { error } = await supabase
+      .from('COMMENTS')
+      .delete()
+      .eq('id', commentId);
+
+    if (error) {
+      console.error("Error deleting comment:", error);
+      // If the delete fails, you might want to add the comment back to the list
+    }
+  };
+
+  const handleLikeToggle = async (commentId: string, isCurrentlyLiked: boolean) => {
+    if (!userData?.id) return;
+
+    // Optimistic UI update
+    const updatedComments = comments.map(c => {
+      if (c.id === commentId) {
+        return {
+          ...c,
+          isLiked: !c.isLiked,
+          likes: c.isLiked ? c.likes - 1 : c.likes + 1
+        };
+      }
+      return c;
+    });
+    setComments(updatedComments);
+
+    if (isCurrentlyLiked) {
+      // Unlike
+      const { error } = await supabase
+        .from('COMMENT_LIKES')
+        .delete()
+        .eq('comment_id', commentId)
+        .eq('user_id', userData.id);
+      if (error) console.error("Error unliking:", error);
+    } else {
+      // Like
+      const { error } = await supabase
+        .from('COMMENT_LIKES')
+        .insert({ comment_id: commentId, user_id: userData.id });
+      if (error) console.error("Error liking:", error);
     }
   };
 
@@ -324,6 +381,9 @@ const MovieDisplay = () => {
                                             newComment={newComment}
                                             setNewComment={setNewComment}
                                             onPost={handlePostComment}
+                                            onDelete={handleDeleteComment}
+                                            onLike={handleLikeToggle}
+                                            currentUserId={userData?.id}
                                           />}
           
         </View>
