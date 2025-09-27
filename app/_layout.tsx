@@ -1,8 +1,8 @@
+import SplashScreen from "@/components/SplashScreen";
 import TopNavigator from "@/components/TopNavigator";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, View } from "react-native";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import './globals.css';
 // Import supabase client to ensure polyfill is loaded early
@@ -34,20 +34,12 @@ function useProtectedRoute(user: any) {
 function AppNavigator() {
   const { user, loading } = useAuth();
   const [isMounted, setIsMounted] = useState(false);
-  
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
-  
-  useProtectedRoute(user);
 
-  if (loading || !isMounted) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'black' }}>
-        <ActivityIndicator size="large" color="#F07900" />
-      </View>
-    );
-  }
+  useProtectedRoute(user);
 
   return (
     <Stack>
@@ -113,6 +105,16 @@ function AppNavigator() {
 }
 
 export default function RootLayout() {
+  const [showSplash, setShowSplash] = useState(true);
+
+  const handleSplashFinish = () => {
+    setShowSplash(false);
+  };
+
+  if (showSplash) {
+    return <SplashScreen onAnimationFinish={handleSplashFinish} />;
+  }
+
   return (
     <AuthProvider>
       <UserProvider>
