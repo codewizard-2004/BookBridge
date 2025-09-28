@@ -141,7 +141,6 @@ export function useSaveBook(book: Book) {
             .eq("userId", userData.id)
             .eq("bookId", bookRow.id)
             .select();
-          console.log(data , error)
 
           setIsSaved(false);
         }

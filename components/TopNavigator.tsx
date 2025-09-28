@@ -1,7 +1,7 @@
 import { images } from '@/constants/images';
 import { useUser } from '@/contexts/UserContext';
 import { useRouter } from 'expo-router';
-import { CircleUserRound, Search } from 'lucide-react-native';
+import { Bell, BellDot, ChevronDown, ChevronUp, CircleUserRound, Search } from 'lucide-react-native';
 import React, { useState, useRef } from 'react';
 import {
   Image,
@@ -25,6 +25,7 @@ const TopNavigator = () => {
   const [menuVisible, setMenuVisible] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
   const avatarRef = useRef<View>(null);
+  const notifications = 0
 
   const handleAvatarPress = () => {
     // Measure avatar's position
@@ -35,17 +36,17 @@ const TopNavigator = () => {
   };
 
   return (
-    <View className="flex-row items-center justify-between px-4 pt-12 pb-3 bg-background shadow">
+    <View className="flex-row items-center justify-between px-4 pt-8 bg-background shadow">
       {/* Left side */}
-      <View className="flex-row items-center">
-        <Image source={images.LOGO} style={{ width: 35, height: 35 }} />
-        <Text className="text-xl font-semibold ml-2 text-primary">
+      <View className="flex-row items-center gap-2">
+        <Image source={images.LOGO} style={{ width: 30, height: 70 }} />
+        <Text className="text-lg font-semibold text-primary">
           BOOKBRIDGE
         </Text>
       </View>
 
       {/* Right side */}
-      <View className="flex flex-row gap-5 items-center">
+      <View className="flex flex-row gap-3 items-center">
         {/* Streak button */}
         <TouchableOpacity
           className="bg-accent w-12 h-9 justify-center items-center rounded-full"
@@ -62,10 +63,15 @@ const TopNavigator = () => {
         {/* Avatar button */}
         <TouchableOpacity ref={avatarRef} onPress={handleAvatarPress}>
           {userData?.profile_url ? (
-            <Image
-              source={{ uri: userData.profile_url }}
-              style={{ width: 32, height: 32, borderRadius: 16 }}
-            />
+            <View className='bg-gray-800 rounded-full w-[50px] flex flex-row items-center'>
+              <Image
+                source={{ uri: userData.profile_url }}
+                style={{ width: 32, height: 32, borderRadius: 16 }}
+              />{menuVisible?
+                <ChevronUp size={17} color={"white"}/>:
+                <ChevronDown size={17} color={"white"}/>}
+              
+            </View>
           ) : (
             <CircleUserRound size={24} color="#F07900" />
           )}
@@ -117,6 +123,16 @@ const TopNavigator = () => {
             }}
           >
             <Text style={styles.menuText}>Profile</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => {
+              setMenuVisible(false);
+              router.push('/notification');
+            }}
+          >
+            <Text style={styles.menuText}>Notifications</Text>
           </TouchableOpacity>
         </View>
       </Modal>

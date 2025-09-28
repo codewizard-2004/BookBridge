@@ -62,7 +62,6 @@ export default function Index() {
   const { recommendedBooks , fetching: loading } = useRecommendations();
   const { data: latestBooks, loading: latestLoading, error} = useLatest();
   const { books: trending , loading: trendLoading , error: trendError, refresh: trendingRefetch} = useTrendingBooks();
-  console.log(trending)
   const [ refreshing , setRefreshing ] = useState(false);
 
   const onRefresh = async () => {

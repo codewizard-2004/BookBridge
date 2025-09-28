@@ -100,6 +100,13 @@ function AppNavigator() {
           headerShown: false
         }}
       />
+      <Stack.Screen 
+        name="notification/index"
+        options={{
+          title:"Notifications",
+          headerShown: false
+        }}
+      />
     </Stack>
   );
 }
