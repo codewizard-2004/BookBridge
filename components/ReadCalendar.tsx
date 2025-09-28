@@ -39,7 +39,6 @@ const ReadCalendar: React.FC<ReadCalendarProps> = ({ readDates, startDate, endDa
     <View style={{ flex: 1 }}>
       <CalendarList
         horizontal
-        pagingEnabled
         pastScrollRange={12}
         futureScrollRange={12}
         calendarHeight={100}

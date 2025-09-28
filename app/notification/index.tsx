@@ -140,7 +140,7 @@ const NotificationsPage = () => {
 
 
   return (
-    <View className="flex-1 bg-black">
+    <View className="flex-1 bg-background">
       <CustomModal 
         title={title} 
         text={text} 
