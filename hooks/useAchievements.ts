@@ -9,38 +9,46 @@ type Achievement = {
   rarity: string;
 };
 
-export const useAchievements = () => {
+export const useAchievements = (userIdParam?: string) => {
   const { userData, loading: userLoading } = useUser() ?? {};
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
-  const fetchAchievements = useCallback(async () => {
-    if (!userData?.id) return;
+  const fetchAchievements = useCallback(async (overrideId?: string) => {
+    const userIdToUse = overrideId || userIdParam || userData?.id;
+    if (!userIdToUse) return;
+
     setLoading(true);
-    new Promise(resolve => setTimeout(resolve, 3000)); // Simulate network delay
+
+    // optional simulated network delay
+    await new Promise(resolve => setTimeout(resolve, 3000));
+
     const { data, error } = await supabase
       .from("USER_ACHIEVEMENTS")
       .select("ACHIEVEMENTS(name, description, emoji, rarity)")
-      .eq("userId", userData.id);
+      .eq("userId", userIdToUse);
 
     if (!error) {
       setAchievements(data?.map(item => item.ACHIEVEMENTS) ?? []);
+    } else {
+      console.error("Error fetching achievements:", error);
     }
-    setLoading(false);
-  }, [userData?.id]);
 
-  const refresh = useCallback(async () => {
+    setLoading(false);
+  }, [userData?.id, userIdParam]);
+
+  const refresh = useCallback(async (overrideId?: string) => {
     setRefreshing(true);
-    await fetchAchievements();
+    await fetchAchievements(overrideId);
     setRefreshing(false);
   }, [fetchAchievements]);
 
   useEffect(() => {
-    if (!userLoading && userData?.id) {
+    if (!userLoading) {
       fetchAchievements();
     }
-  }, [userLoading, userData?.id, fetchAchievements]);
+  }, [userLoading, fetchAchievements]);
 
   return { achievements, fetchAchievements, loading, refreshing, refresh };
 };

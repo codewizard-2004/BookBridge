@@ -128,7 +128,7 @@ const profile = ({ followed = true}) => {
       setLoading(false);
     }
   }
-  const { achievements, refreshing: achievementsLoading, refresh: loadAchievements } = useAchievements();
+  const { achievements, refreshing: achievementsLoading, refresh: loadAchievements } = useAchievements(userId as string);
   const onRefresh = async () => {
     console.log("Pull-to-refresh triggered");
     setRefreshing(true);
@@ -267,7 +267,7 @@ const profile = ({ followed = true}) => {
 
             <View className='w-full flex flex-col'>
               <Text className='text-2xl m-5 text-primary font-semibold'>Achievements</Text>
-              {refreshing ? (
+              {refreshing || achievementsLoading ? (
                 <View className='flex flex-row flex-wrap gap-2 justify-center items-center'>
                   <LoadingSkeleton height={140} width={170}/>
                   <LoadingSkeleton height={140} width={170}/>
