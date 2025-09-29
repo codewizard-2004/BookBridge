@@ -51,11 +51,25 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
           ...profile,
           favoriteGenres: genres,
         });
-        console.log(userData)
+      } else {
+        setUserData(null); // Reset userData if no user is logged in
       }
       setLoading(false);
     };
+
     getUser();
+
+    const { data: subscription } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_OUT") {
+        setUserData(null); // Reset userData on logout
+      } else if (event === "SIGNED_IN") {
+        getUser(); // Fetch user data on login
+      }
+    });
+
+    return () => {
+      subscription?.unsubscribe();
+    };
   }, []);
 
   return (

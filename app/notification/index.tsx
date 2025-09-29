@@ -51,12 +51,12 @@ const NotificationItem = ({ item }: { item: any }) => {
   return (
     <View
       className={`mx-4 mb-3 p-4 rounded-2xl border ${
-        !item.isRead 
+        item.isRead 
           ? "bg-gray-900/30 border-gray-800/30" 
           : "bg-gray-900 border-[#F07900]/20"
       }`}
       style={{
-        shadowColor: item.read ? "transparent" : "#F07900",
+        shadowColor: item.isRead ? "transparent" : "#F07900",
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 8,
