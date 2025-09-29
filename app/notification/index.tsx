@@ -3,41 +3,42 @@ import { View, Text, FlatList, TouchableOpacity, Alert } from "react-native";
 import { ArrowLeft, Trophy, UserCheck, Trash2, CheckCircle, Bell, BellOff } from "lucide-react-native";
 import { useRouter } from "expo-router";
 import CustomModal from "@/components/CustomModal";
+import { useNotifications } from "@/hooks/useNotifications";
+import LoadingSkeleton from "@/components/LoadingSkeleton";
+import { supabase } from "@/utils/supabaseClient";
+import { useUser } from "@/contexts/UserContext";
 
-const initialNotifications = [
-  {
-    id: "1",
-    type: "achievement",
-    title: "Achievement Unlocked!",
-    description: "You finished your first book 🎉",
-    read: false,
-    timestamp: "2 hours ago",
-  },
-  {
-    id: "2",
-    type: "friend",
-    title: "Friend Request Accepted",
-    description: "Alex is now your friend. Say hello!",
-    read: true,
-    timestamp: "1 day ago",
-  },
-  {
-    id: "3",
-    type: "achievement",
-    title: "Reading Streak!",
-    description: "You've read for 7 days in a row! Keep it up! 🔥",
-    read: false,
-    timestamp: "3 hours ago",
-  },
-  {
-    id: "4",
-    type: "friend",
-    title: "New Book Recommendation",
-    description: "Sarah recommended 'The Midnight Library' for you",
-    read: true,
-    timestamp: "2 days ago",
-  },
-];
+
+export const timeAgo = (timestamp: string | Date) => {
+  const now = new Date();
+  const past = new Date(timestamp);
+  const diff = (now.getTime() - past.getTime()) / 1000; // difference in seconds
+
+  if (diff < 60) return "just now"; // less than a minute
+  if (diff < 3600) {
+    const minutes = Math.floor(diff / 60);
+    return `${minutes} minute${minutes > 1 ? "s" : ""} ago`;
+  }
+  if (diff < 86400) {
+    const hours = Math.floor(diff / 3600);
+    return `${hours} hour${hours > 1 ? "s" : ""} ago`;
+  }
+  if (diff < 604800) {
+    const days = Math.floor(diff / 86400);
+    return `${days} day${days > 1 ? "s" : ""} ago`;
+  }
+  if (diff < 2592000) {
+    const weeks = Math.floor(diff / 604800);
+    return `${weeks} week${weeks > 1 ? "s" : ""} ago`;
+  }
+  if (diff < 31536000) {
+    const months = Math.floor(diff / 2592000);
+    return `${months} month${months > 1 ? "s" : ""} ago`;
+  }
+  const years = Math.floor(diff / 31536000);
+  return `${years} year${years > 1 ? "s" : ""} ago`;
+};
+
 
 const NotificationItem = ({ item }: { item: any }) => {
   const Icon =
@@ -50,7 +51,7 @@ const NotificationItem = ({ item }: { item: any }) => {
   return (
     <View
       className={`mx-4 mb-3 p-4 rounded-2xl border ${
-        item.read 
+        !item.isRead 
           ? "bg-gray-900/30 border-gray-800/30" 
           : "bg-gray-900 border-[#F07900]/20"
       }`}
@@ -65,7 +66,7 @@ const NotificationItem = ({ item }: { item: any }) => {
       <View className="flex-row items-start">
         {/* Unread indicator */}
         <View className="mr-3 pt-1">
-          {!item.read ? (
+          {!item.isRead ? (
             <View className="w-3 h-3 rounded-full bg-[#F07900] shadow-lg shadow-[#F07900]/50" />
           ) : (
             <View className="w-3 h-3" />
@@ -74,7 +75,7 @@ const NotificationItem = ({ item }: { item: any }) => {
 
         {/* Icon with background */}
         <View className={`p-2 rounded-full mr-3 ${
-          item.read
+          item.isRead
             ? "bg-gray-700/50"
             : item.type === "achievement" 
               ? "bg-[#F07900]/20" 
@@ -82,7 +83,7 @@ const NotificationItem = ({ item }: { item: any }) => {
         }`}>
           <Icon 
             color={
-              item.read
+              item.isRead
                 ? "#6B7280"
                 : item.type === "achievement" ? "#F07900" : "#3B82F6"
             } 
@@ -94,18 +95,18 @@ const NotificationItem = ({ item }: { item: any }) => {
         <View className="flex-1">
           <Text
             className={`font-bold text-base mb-1 ${
-              item.read ? "text-gray-500" : "text-white"
+              item.isRead ? "text-gray-500" : "text-white"
             }`}
           >
-            {item.title}
+            {item.type === "achievement" ? "Achievement Unlocked!" : "Friend Request Update"}
           </Text>
           <Text className={`text-sm leading-5 mb-2 ${
-            item.read ? "text-gray-600" : "text-gray-300"
+            item.isRead ? "text-gray-600" : "text-gray-300"
           }`}>
-            {item.description}
+            {item.type == "achievement" ? `You completed the achievement: ${item.message}`: `Your friend request was ${item.message}`}
           </Text>
           <Text className="text-xs text-gray-500 font-medium">
-            {item.timestamp}
+            {timeAgo(item.created_at)}
           </Text>
         </View>
       </View>
@@ -115,20 +116,26 @@ const NotificationItem = ({ item }: { item: any }) => {
 
 const NotificationsPage = () => {
   const navigation = useRouter();
-  const [notifications, setNotifications] = useState(initialNotifications);
   const [modalOpen , setModalOpen] = useState<boolean>(false);
   const [text, setText] = useState<string>("");
   const [title, setTitle] = useState<string>("");
+  const { userData } = useUser() ?? {};
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const { notifications, loading, refresh } = useNotifications();
+ 
+  const unreadCount = notifications.filter(n => !n.isRead).length;
 
-  const markAllRead = () => {
-    setNotifications((prev) =>
-      prev.map((n) => ({
-        ...n,
-        read: true,
-      }))
-    );
+  const markAllRead = async () => {
+    const { data, error } = await supabase
+      .from("NOTIFICATIONS")
+      .update({ isRead: true })
+      .eq("userId", userData.id)
+      console.log(data)
+    if (error) {
+      console.log("Error", error);
+    } else {
+      refresh();
+    }
   };
 
   const deleteAll = () => {
@@ -136,6 +143,19 @@ const NotificationsPage = () => {
     setText("Are you sure you want to delete all notifications? This action cannot be undone.")
     setModalOpen(true);
   };
+
+  const deleteAllConfirmed = async () => {
+    console.log("Deleting all notifications")
+    const { data, error } = await supabase
+      .from("NOTIFICATIONS")
+      .delete()
+      .eq("userId", userData.id)
+    if (error) {
+      console.log("Error", error);
+    }else{
+      refresh();
+    }
+  }
 
 
 
@@ -147,7 +167,8 @@ const NotificationsPage = () => {
         visible={modalOpen} 
         onPress={()=> setModalOpen(!modalOpen)} 
         onPressOK={() => {
-          setNotifications([])
+          console.log("OK pressed")
+          deleteAllConfirmed();
           setModalOpen(!modalOpen)
           }}/>
       {/* Header */}
@@ -206,7 +227,16 @@ const NotificationsPage = () => {
       </View>
 
       {/* Notifications List */}
-      {notifications.length > 0 ? (
+      {loading ? (
+        <View className="flex-1 items-center gap-2">
+          <LoadingSkeleton height={120} width={350}/>
+          <LoadingSkeleton height={120} width={350}/>
+          <LoadingSkeleton height={120} width={350}/>
+          <LoadingSkeleton height={120} width={350}/>
+          <LoadingSkeleton height={120} width={350}/>
+        </View>
+      ) :
+      notifications.length > 0 ? (
         <FlatList
           data={notifications}
           keyExtractor={(item) => item.id}
