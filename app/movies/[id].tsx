@@ -181,8 +181,8 @@ const MovieDisplay = () => {
     fetchSavedData();
   }, [userData?.id, id]);
 
-  const [comments, setComments] = useState<any[]>([]);
-  const [newComment, setNewComment] = useState("");
+  const [comments, setComments] = useState<any>([]);
+  const [newComment, setNewComment] = useState('');
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -341,7 +341,24 @@ const MovieDisplay = () => {
         </View>
 
         <View className='w-full flex justify-center items-center mt-3'>
-          <TouchableOpacity className='bg-primary w-[90%] py-3 flex items-center rounded-xl'>
+          <TouchableOpacity 
+            className='bg-primary w-[90%] py-3 flex items-center rounded-xl'
+            onPress={() => {
+              // Define your book-specific PDFs here
+              const bookPdfUrls: { [key: string]: string } = {
+                "The Da Vinci Code": "https://dn790007.ca.archive.org/0/items/TheDaVinciCode_201308/The%20Da%20Vinci%20Code.pdf",
+                "The Jungle Book Illustrated": "https://ia802808.us.archive.org/32/items/junglebook00kipl2/junglebook00kipl2.pdf",
+              };
+
+              // Use a dummy PDF if the book title doesn't match
+              const pdfUrl = bookPdfUrls[title as string] || "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
+
+              router.push({
+                pathname: "/pdf-viewer",
+                params: { pdfUrl: pdfUrl, title: title },
+              });
+            }}
+          >
             <Text className='text-xl text-white'>{pagesRead > 0 ? "Continue Reading" : "Start Reading"}</Text>
           </TouchableOpacity>
           {pagesRead > 0 && 
