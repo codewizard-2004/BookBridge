@@ -125,7 +125,8 @@ const MovieDisplay = () => {
   const [saved , setSaved] = useState(false);
   const { userData, loading:userLoading } = useUser() ?? {};
   const avatar = userData?.profile_url || "https://avatar.iran.liara.run/public/18";
-  const { id , pagesRead } = useLocalSearchParams();
+  const { id , pagesRead: pagesReadParam } = useLocalSearchParams();
+  const pagesRead = Number(pagesReadParam || 0);
   const {books , fetching } = useBooks({type: "bookId" , query:id});
   const {
     title,
@@ -343,7 +344,29 @@ const MovieDisplay = () => {
         <View className='w-full flex justify-center items-center mt-3'>
           <TouchableOpacity 
             className='bg-primary w-[90%] py-3 flex items-center rounded-xl'
-            onPress={() => {
+            onPress={async () => {
+              // Upsert the book into the BOOKS table first
+              const { error } = await supabase.from('BOOKS').upsert({
+                id: id,
+                title: title,
+                author: authors[0],
+                description: description,
+                genre: categories[0] || 'N/A',
+                rating: averageRating,
+                total_pages: pageCount,
+                cover: imageLinks?.thumbnail,
+                publisher: publisher,
+                year: publishedDate,
+                language: language,
+              });
+
+              if (error) {
+                console.error("Error saving book to BOOKS table:", error);
+                // Optionally, show an alert to the user
+                // Alert.alert("Error", "Could not save book details.");
+                return;
+              }
+
               // Define your book-specific PDFs here
               const bookPdfUrls: { [key: string]: string } = {
                 "The Da Vinci Code": "https://dn790007.ca.archive.org/0/items/TheDaVinciCode_201308/The%20Da%20Vinci%20Code.pdf",
@@ -353,9 +376,14 @@ const MovieDisplay = () => {
               // Use a dummy PDF if the book title doesn't match
               const pdfUrl = bookPdfUrls[title as string] || "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
 
+              // Now, navigate to the PDF viewer
               router.push({
                 pathname: "/pdf-viewer",
-                params: { pdfUrl: pdfUrl, title: title },
+                params: { 
+                  pdfUrl: pdfUrl, 
+                  title: title, 
+                  bookId: id,
+                },
               });
             }}
           >
