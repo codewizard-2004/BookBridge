@@ -1,8 +1,12 @@
 import { View , Text } from "react-native"
 import { Clock , BookOpen , Medal } from "lucide-react-native"
 import ProgressBar from "./ProgressBar"
+import { useWeeklyStreak } from "@/hooks/useWeeklyStreak";
 
 const StatSection = () => {
+  const { weekData, loading } = useWeeklyStreak();
+  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const todayName = dayNames[new Date().getDay()];
     return(
         <View className="w-[95%] h-[350px] mt-2 bg-secondary rounded-3xl p-4">
             {/* Stats Section */}
@@ -59,21 +63,13 @@ const StatSection = () => {
                 Streak this week
               </Text>
               <View className="flex flex-row justify-between w-full px-2">
-                {[
-                  { day: "Mon", icon: "🔥" },
-                  { day: "Tue", icon: "🔥" },
-                  { day: "Wed", icon: "🔥" },
-                  { day: "Thu", icon: "🔥" },
-                  { day: "Fri", icon: "❄️" },
-                  { day: "Sat", icon: "❄️" },
-                  { day: "Sun", icon: "🔥" },
-                ].map(({ day, icon }) => (
+                {weekData.map(({ day, icon }) => (
                   <View
                     key={day}
                     className="flex flex-col justify-center items-center gap-1"
                   >
                     <Text className="text-lg">{icon}</Text>
-                    <Text className="text-xs text-gray-400">{day}</Text>
+                    <Text className={`text-xs ${todayName == day?"text-accent":"text-gray-400"}`}>{day}</Text>
                   </View>
                 ))}
               </View>

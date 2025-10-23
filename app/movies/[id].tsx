@@ -126,7 +126,7 @@ const MovieDisplay = () => {
   const { userData, loading:userLoading } = useUser() ?? {};
   const avatar = userData?.profile_url || "https://avatar.iran.liara.run/public/18";
   const { id , pagesRead: pagesReadParam } = useLocalSearchParams();
-  const pagesRead = Number(pagesReadParam || 0);
+  const progress = Number(pagesReadParam || 0);
   const {books , fetching } = useBooks({type: "bookId" , query:id});
   const {
     title,
@@ -140,7 +140,6 @@ const MovieDisplay = () => {
     language = "en",
     imageLinks = {},
   } = books.length > 0 ? books[0].volumeInfo : {};
-
   
 
   const [savedData, setSavedData] = useState<{ data: any; error: any }>({ data: null, error: null });
@@ -387,12 +386,12 @@ const MovieDisplay = () => {
               });
             }}
           >
-            <Text className='text-xl text-white'>{pagesRead > 0 ? "Continue Reading" : "Start Reading"}</Text>
+            <Text className='text-xl text-white'>{progress > 0 ? "Continue Reading" : "Start Reading"}</Text>
           </TouchableOpacity>
-          {pagesRead > 0 && 
+          {progress > 0 && 
           <>
-            <ProgressBar progress={0.69} />
-            <Text className='text-gray-400 text-sm mt-1'>{pagesRead/pageCount}% completed</Text>
+            <ProgressBar progress={progress} />
+            <Text className='text-gray-400 text-sm mt-1'>{Math.round(progress*100)}% completed</Text>
           </>
           }
         </View>

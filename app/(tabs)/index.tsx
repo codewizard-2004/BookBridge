@@ -9,39 +9,9 @@ import { useLatest } from "@/hooks/useLatest";
 import { useTrendingBooks } from "@/hooks/useTrending";
 import { useState } from "react";
 import StatSection from "@/components/StatSection";
+import { useUserReadingBooks } from "@/hooks/useUserReadingBooks";
 
 export default function Index() {
-
-  const data = [
-    {
-      cover: images.atomicHabits,
-      title: "Atomic Habits",
-      author: "James Clear",
-      progress: 0.75,
-      totalPages: 100
-    },
-    {
-      cover: images.HP,
-      title: "Harry Potter",
-      author: "JK Rowling",
-      progress: 0.5,
-      totalPages: 100
-    },
-    {
-      cover: images.LOTR,
-      title: "Lord of the Rings",
-      author: "JJ Tolkien",
-      progress: 0.90,
-      totalPages: 100
-    },
-    {
-      cover: images.oceanDoor,
-      title: "Beyond the Ocean Door",
-      author: "Amisha Sathi",
-      progress: 0,
-      totalPages: 100
-    }
-  ]
 
   const Skeleton = () => {
   const opacity = new Animated.Value(0.3);
@@ -63,11 +33,13 @@ export default function Index() {
   const { data: latestBooks, loading: latestLoading, error} = useLatest();
   const { books: trending , loading: trendLoading , error: trendError, refresh: trendingRefetch} = useTrendingBooks();
   const [ refreshing , setRefreshing ] = useState(false);
+  const {books: userBooks, loading: userBooksLoading, error: userBooksError , refetch: userBookRefresh } = useUserReadingBooks()
 
   const onRefresh = async () => {
   setRefreshing(true);
 
   await trendingRefetch();
+  await userBookRefresh();
 
   setRefreshing(false);
 };
@@ -131,20 +103,25 @@ export default function Index() {
         <Text className="text-2xl mt-5 font-semibold text-textPrimary">Continue Reading</Text>
         <FlatList 
           horizontal
-          data={data}
-          keyExtractor={(item, index) => index.toString()}
+          data={userBooks}
+          keyExtractor={(item) => item.id}
           contentContainerStyle={{ paddingHorizontal: 10 }}
           ItemSeparatorComponent={() => <View style={{ width: 10 }} />} // Gap between items
           showsHorizontalScrollIndicator={false}
           renderItem={({ item }) => (
             <BookButton
-              {...item}
+              id={item.id}
+              cover={item.cover}
+              title={item.title}
+              author={item.author}
+              genre={item.genre ?? "Unknown"}
+              progress={(item.pages_read ?? 0) / (item.total_pages ?? 100)}
+              totalPages={item.total_pages ?? 100}
             />
           )}
 
          />
 
-         <Text className="text-2xl font-semibold mt-7 text-textPrimary">Trending Books</Text>
          {trendLoading? (
           <ScrollView 
             horizontal 

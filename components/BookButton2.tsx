@@ -14,7 +14,10 @@ interface BookButton2Props {
 }
 
 const BookButton2 = ({id, title , author , cover , progress , totalPages  , onDelete }: BookButton2Props)=>{
-
+    const safeCover =
+    typeof cover === "string"
+      ? cover.replace("http://", "https://")
+      : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRLx8PkaSqRN3OG9leVVVOIRSfPxyYcl4ZjXA&s";
     return (
         <Link href={`/movies/${id}` as any}
             asChild
@@ -22,7 +25,7 @@ const BookButton2 = ({id, title , author , cover , progress , totalPages  , onDe
           <TouchableOpacity className='flex flex-row rounded-xl bg-secondary items-center justify-center w-[90%] h-[150px]'>
             <View>
               <Image 
-                source={cover} 
+                source={{uri: safeCover}} 
                 style={{ width: 90, height: 130, borderRadius: 10, marginLeft: 20 }}
                 resizeMode="stretch" />
             </View>

@@ -1,116 +1,116 @@
 import { images } from '@/constants/images'
-import React, { useState } from 'react'
-import { Text, TouchableOpacity, View , Image, ActivityIndicator ,FlatList} from 'react-native'
+import React, { useState, useEffect, useCallback } from 'react'
+import { Text, TouchableOpacity, View, Image, ActivityIndicator, FlatList, RefreshControl } from 'react-native'
 import BookButton2 from '@/components/BookButton2'
+import { useUserReadingBooks } from '@/hooks/useUserReadingBooks'
+import { useUser } from '@/contexts/UserContext'
+import { supabase } from '@/utils/supabaseClient'
 
-const books = () => {
-  const [activeButton, setActiveButtons]  = useState(0);
-  const loading = false;
+const BooksScreen = () => {
+  const [activeButton, setActiveButton] = useState(0)
+  const { books: userBooks, loading: userBooksLoading, error: userBooksError, refetch: userBookRefresh } = useUserReadingBooks()
+  const [books, setBooks] = useState<any[]>([])
+  const { userData } = useUser() ?? {}
 
-  const data = [
-    {
-      id: "1",
-      cover: images.atomicHabits,
-      title: "Atomic Habits",
-      author: "James Clear",
-      progress: 0.75,
-      totalPages: 100
-    },
-    {
-      id: "2",
-      cover: images.HP,
-      title: "Harry Potter",
-      author: "JK Rowling",
-      progress: 0.5,
-      totalPages: 100
-    },
-    {
-      id: "3",
-      cover: images.LOTR,
-      title: "Lord of the Rings",
-      author: "JJ Tolkien",
-      progress: 0.90,
-      totalPages: 100
-    },
-    {
-      id: "4",
-      cover: images.oceanDoor,
-      title: "Beyond the Ocean Door",
-      author: "Amisha Sathi",
-      progress: 1,
-      totalPages: 100
+  // Update local books when userBooks or activeButton changes
+  useEffect(() => {
+    if (!userBooks) return
+
+    let filteredBooks = userBooks
+    if (activeButton === 1) {
+      filteredBooks = userBooks.filter(book => (book.pages_read ?? 0) < (book.total_pages ?? 100))
+    } else if (activeButton === 2) {
+      filteredBooks = userBooks.filter(book => (book.pages_read ?? 0) >= (book.total_pages ?? 100))
     }
-  ]
-  
-  const [books, setBooks] = useState(data);
-  const handleDelete = (id: string) => {
-    setBooks(prev => prev.filter(book => book.id !== id));
-  };
+
+    setBooks(filteredBooks)
+  }, [userBooks, activeButton])
+
+  const handleDelete = async(id: string) => {
+    setBooks(prev => prev.filter(book => book.id !== id))
+    const { data, error } = await supabase
+    .from('READINGS')
+    .delete()
+    .eq('userId', userData.id)
+    .eq('bookId', id);
+
+    if (error) {
+      console.error('Error deleting reading:', error);
+      return false;
+    }
+
+    console.log('Deleted row:', data);
+    return true;
+  }
+
+  const onRefresh = useCallback(() => {
+    userBookRefresh()
+  }, [userBookRefresh])
+
+  if (userBooksLoading) {
+    return (
+      <View className="flex bg-background flex-1 items-center justify-center">
+        <ActivityIndicator size="large" color="#1A73E8" />
+      </View>
+    )
+  }
+
+  if (userBooksError) {
+    return (
+      <View className="flex bg-background flex-1 items-center justify-center">
+        <Text className="text-red-500 text-center">{userBooksError.message || 'Error fetching books'}</Text>
+      </View>
+    )
+  }
 
   return (
-    
-    <View className='bg-background'>
-      {loading   ? (
-        <View className='flex  bg-background flex-col w-full items-center justify-center h-full'>
-          <ActivityIndicator size="large" color="#1A73E8" />
+    <View className="bg-background flex-1">
+      <View className="w-full m-5">
+        <Text className="text-primary font-semibold text-3xl">Your Books</Text>
+
+        {/* Filter Buttons */}
+        <View className="flex flex-row gap-3 mt-5">
+          {['All', 'Reading', 'Completed'].map((label, index) => (
+            <TouchableOpacity
+              key={index}
+              className={`rounded-3xl p-3 ${activeButton === index ? 'bg-primary' : 'bg-secondary'}`}
+              onPress={() => setActiveButton(index)}
+            >
+              <Text className={`${activeButton === index ? 'text-white' : 'text-gray-400'}`}>{label}</Text>
+            </TouchableOpacity>
+          ))}
         </View>
-      ):(
-      <View className='w-full m-5  bg-background'>
-        <Text className='text-primary font-semibold  text-3xl'>Your Books</Text>
-        <View id='buttons' className='flex flex-row  gap-3 mt-5'>
 
-          <TouchableOpacity 
-            className={`rounded-3xl p-3 ${activeButton === 0 ? 'bg-primary' : 'bg-secondary'}`} 
-            onPress={() => setActiveButtons(0)}>
-            <Text className={`${activeButton ==  0? "text-white" : "text-gray-400"}`}>All</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            className={`rounded-3xl p-3  ${activeButton === 1 ? 'bg-primary' : 'bg-secondary'}`} 
-            onPress={() => setActiveButtons(1)}>
-            <Text className={`${activeButton ==  1? "text-white" : "text-gray-400"}`}>Reading</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            className={`rounded-3xl p-3 ${activeButton === 2 ? 'bg-primary' : 'bg-secondary'}`} 
-            onPress={() => setActiveButtons(2)}>
-          <Text className={`${activeButton ==  2? "text-white" : "text-gray-400"}`}>Completed</Text>
-          </TouchableOpacity>
-
-        </View>
+        {/* Book List */}
         <FlatList
-          className='bg-background'
           data={books}
-          keyExtractor={item => item.id}
+          keyExtractor={item => item.id.toString()}
           renderItem={({ item }) => (
             <BookButton2
+              id={item.id}
               title={item.title}
               author={item.author}
               cover={item.cover}
-              progress={item.progress}
-              totalPages={item.totalPages}
+              progress={(item.pages_read ?? 0) / (item.total_pages ?? 100)}
+              totalPages={item.total_pages ?? 100}
               onDelete={() => handleDelete(item.id)}
             />
           )}
           contentContainerStyle={{ paddingTop: 20, paddingBottom: 400 }}
           ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+          refreshControl={<RefreshControl refreshing={userBooksLoading} onRefresh={onRefresh} />}
           ListEmptyComponent={() => (
-            <View className='flex-1  items-center justify-center'>
+            <View className="flex-1 items-center justify-center">
               <Text className="text-center text-gray-500 text-base mt-10">
                 Nothing here yet! Start reading a book..
               </Text>
-              <Image 
-                source={images.BookShelfGuy} 
-                style={{height:300  , width:300}}/>
+              <Image source={images.BookShelfGuy} style={{ height: 300, width: 300 }} />
             </View>
           )}
         />
-        
       </View>
-      )}
-      
     </View>
   )
 }
 
-export default books
+export default BooksScreen

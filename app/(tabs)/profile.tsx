@@ -7,10 +7,11 @@ import { getMyFriends, getRelationship, respondToRequest, sendFriendRequest } fr
 import { supabase } from '@/utils/supabaseClient';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Check, CircleUserRound, Clock, LogOut, ShieldAlert, User, UserRoundCheck, UserRoundPlus, X } from 'lucide-react-native';
-import React, { useState } from 'react';
+import React, { use, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Image, RefreshControl, Text, TouchableOpacity, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import LoadingSkeleton from '@/components/LoadingSkeleton';
+import BookButton from '@/components/BookButton';
 
 const profile = ({ followed = true}) => {
   
@@ -21,6 +22,44 @@ const profile = ({ followed = true}) => {
   const me = userId === user?.id;
   const [loading, setLoading] = useState(false);
   //const {userData: authUserData , loading: authUserLoading} = useUser();
+  const [books, setBooks] = useState<any[]>([]);
+  React.useEffect(() => {
+      if (!me && userId) {
+        (async () => {
+          try {
+            const { data, error } = await supabase
+              .from("READINGS")
+              .select(
+                `pages_read,
+                BOOKS (
+                  id,
+                  title,
+                  author,
+                  description,
+                  genre,
+                  rating,
+                  total_pages,
+                  cover
+                )`
+              )
+              .eq("userId", userId);
+  
+            if (error) throw error;
+  
+            const formatted = data?.map((r: any) => ({
+              ...r.BOOKS,
+              pages_read: r.pages_read,
+            }));
+  
+            setBooks(formatted || []);
+          } catch (err: any) {
+            console.error("Error fetching books:", err);
+          }
+        })();
+      } else {
+        setBooks([]);
+      }
+    }, [userId, me]);
 
   const [userData, setUserData] = useState<any>(null);
   const [userError, setUserError] = useState<any>(null);
@@ -143,6 +182,7 @@ const profile = ({ followed = true}) => {
       console.log("Refresh complete");
     }
   }
+
   
 
   return (
@@ -295,6 +335,37 @@ const profile = ({ followed = true}) => {
                     }
                   />
                 )}
+              />}
+            </View>
+
+            <View className='w-full flex flex-col'>
+              <Text className='text-2xl m-5 text-primary font-semibold'>Currently Reading</Text>
+              {refreshing || achievementsLoading ? (
+                <View className='flex flex-row flex-wrap gap-2 justify-center items-center'>
+                  <LoadingSkeleton height={140} width={170}/>
+                  <LoadingSkeleton height={140} width={170}/>
+                  <LoadingSkeleton height={140} width={170}/>
+                  <LoadingSkeleton height={140} width={170}/>
+                </View> ):
+              <FlatList 
+                horizontal
+                data={books}
+                keyExtractor={(item) => item.id}
+                contentContainerStyle={{ paddingHorizontal: 10 }}
+                ItemSeparatorComponent={() => <View style={{ width: 10 }} />} // Gap between items
+                showsHorizontalScrollIndicator={false}
+                renderItem={({ item }) => (
+                  <BookButton
+                    id={item.id}
+                    cover={item.cover}
+                    title={item.title}
+                    author={item.author}
+                    genre={item.genre ?? "Unknown"}
+                    progress={0}
+                    totalPages={item.total_pages ?? 100}
+                  />
+                )}
+
               />}
             </View>
 

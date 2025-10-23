@@ -1,5 +1,6 @@
 import { images } from '@/constants/images';
 import { useUser } from '@/contexts/UserContext';
+import { useReadingStreak } from '@/hooks/useReadingStreak';
 import { useRouter } from 'expo-router';
 import { Bell, BellDot, ChevronDown, ChevronUp, CircleUserRound, Search } from 'lucide-react-native';
 import React, { useState, useRef } from 'react';
@@ -25,7 +26,7 @@ const TopNavigator = () => {
   const [menuVisible, setMenuVisible] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
   const avatarRef = useRef<View>(null);
-  const notifications = 0
+  const { streak, loading } = useReadingStreak();
 
   const handleAvatarPress = () => {
     // Measure avatar's position
@@ -52,7 +53,12 @@ const TopNavigator = () => {
           className="bg-accent w-12 h-9 justify-center items-center rounded-full"
           onPress={() => router.push('/streak')}
         >
-          <Text className="text-white font-semibold">🔥5</Text>
+          {streak > 0? (
+            <Text className="text-white font-semibold">🔥{streak}</Text>
+          ):(
+            <Text className="text-white font-semibold">❄️0</Text>
+          )}
+          
         </TouchableOpacity>
 
         {/* Search button */}
