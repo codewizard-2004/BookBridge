@@ -337,7 +337,7 @@ const profile = ({ followed = true}) => {
                 )}
               />}
             </View>
-
+                {!me && (
             <View className='w-full flex flex-col'>
               <Text className='text-2xl m-5 text-primary font-semibold'>Currently Reading</Text>
               {refreshing || achievementsLoading ? (
@@ -367,7 +367,7 @@ const profile = ({ followed = true}) => {
                 )}
 
               />}
-            </View>
+            </View>)}
 
             {me && (
             <View className='w-full flex flex-col justify-center items-center gap-4 mt-5'>
