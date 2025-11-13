@@ -1,26 +1,34 @@
-import { useSignInWithEmailAndPassword } from "react-firebase-hooks/auth";
-import { auth, firestore } from "../firebase/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { useState } from "react";
+import { supabase } from "../lib/supabase";
 import useAuthStore from "../store/authStore";
+import toast from "react-hot-toast";
 
 const useLogin = () => {
-	const [signInWithEmailAndPassword, , loading, error] = useSignInWithEmailAndPassword(auth);
+	const [loading, setLoading] = useState(false);
+	const [error, setError] = useState(null);
 	const loginUser = useAuthStore((state) => state.login);
 
-	const login = async (inputs) => {
+	const login = async (email, password) => {
+		setLoading(true);
+		setError(null);
 		try {
-			const userCred = await signInWithEmailAndPassword(inputs.email, inputs.password);
+			const { data, error: signInError } = await supabase.auth.signInWithPassword({
+				email,
+				password,
+			});
 
-			if (userCred) {
-				const docRef = doc(firestore, "users", userCred.user.uid);
-				const docSnap = await getDoc(docRef);
-				console.log("text")
-				console.log(docSnap.data())
-				localStorage.setItem("user-info", JSON.stringify(docSnap.data()));
-				loginUser(docSnap.data());
+			if (signInError) throw signInError;
+
+			if (data.user) {
+				localStorage.setItem("user-info", JSON.stringify(data.user.id));
+				loginUser(data.user.id);
+				toast.success("Welcome back!");
 			}
-		} catch (error) {
-			showToast("Error", error.message, "error");
+		} catch (err) {
+			setError(err.message);
+			toast.error(err.message);
+		} finally {
+			setLoading(false);
 		}
 	};
 

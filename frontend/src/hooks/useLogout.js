@@ -1,20 +1,28 @@
-import { useSignOut } from "react-firebase-hooks/auth";
-import { auth } from "../firebase/firebase";
+import { useState } from "react";
+import { supabase } from "../lib/supabase";
 import toast from "react-hot-toast";
 import useAuthStore from "../store/authStore";
 
 const useLogout = () => {
-	const [signOut, isLoggingOut, error] = useSignOut(auth);
+	const [isLoggingOut, setIsLoggingOut] = useState(false);
+	const [error, setError] = useState(null);
     const logoutUser = useAuthStore((state) => state.logout);
 
-
 	const handleLogout = async () => {
+		setIsLoggingOut(true);
+		setError(null);
 		try {
-			await signOut();
+			const { error } = await supabase.auth.signOut();
+			if (error) throw error;
+
 			localStorage.removeItem("user-info");
-            console.log("logged Out");
-		} catch (error) {
-			toast.error(error.message)
+			logoutUser();
+			toast.success("Logged out successfully");
+		} catch (err) {
+			setError(err.message);
+			toast.error(err.message);
+		} finally {
+			setIsLoggingOut(false);
 		}
 	};
 

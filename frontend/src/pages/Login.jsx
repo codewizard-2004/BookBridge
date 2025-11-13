@@ -5,24 +5,18 @@ import InputAdornment from '@mui/material/InputAdornment';
 import PasswordIcon from '@mui/icons-material/Password';
 import Button from '@mui/material/Button';
 import ImageSection from '../components/ImageSection'
-import { toast } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
-
-import { useSignInWithEmailAndPassword } from "react-firebase-hooks/auth";
-import { auth, firestore } from "../firebase/firebase";
-import { doc, getDoc } from "firebase/firestore";
-import useAuthStore from "../store/authStore";
-
+import useLogin from '../hooks/useLogin';
 import CircularProgress from '@mui/material/CircularProgress';
 
 
-const Signup = () => {
+const Login = () => {
 
   const [email , setEmail] = useState("");
-  const [password , setPassowrd] = useState("");
+  const [password , setPassword] = useState("");
 
-  const [signInWithEmailAndPassword, , loading, error] = useSignInWithEmailAndPassword(auth);
-	const loginUser = useAuthStore((state) => state.login);
+  const { loading, error, login } = useLogin();
 
   const handleSubmit = async(e)=> {
     e.preventDefault()
@@ -30,25 +24,7 @@ const Signup = () => {
       toast.error("Fill all inputs");
       return;
     }
-    try {
-      const userCred = await signInWithEmailAndPassword(email, password);
-        if (userCred) {
-          console.log("user logged in")
-          const docRef = doc(firestore, "Users", userCred.user.uid);
-          const docSnap = await getDoc(docRef);
-          localStorage.setItem("user-info", JSON.stringify(userCred.user.uid));
-          loginUser(userCred.user.uid);
-          toast.success("Welcome back")
-        }
-        else{
-          toast.error("Invalid Credentials")
-        }
-    } catch (error) {
-      console.log(error.message)
-      toast.error(error.message);
-    }
-
-    
+    await login(email, password);
   }
   return (
     <div className='flex flex-wrap h-[500px] w-[900px] rounded-xl bg-white shadow-[0_35px_60px_-15px_rgba(0,0,0,0.5)] '>
@@ -69,7 +45,7 @@ const Signup = () => {
 
           <TextField id="outlined-basic3"  label="password" type='password'
           value={password}
-          onChange={(e)=>{setPassowrd(e.target.value)}} 
+          onChange={(e)=>{setPassword(e.target.value)}} 
           InputProps={{
           startAdornment: (
             <InputAdornment position="start">
@@ -101,4 +77,4 @@ const Signup = () => {
   )
 }
 
-export default Signup
+export default Login

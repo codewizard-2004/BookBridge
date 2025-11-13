@@ -6,30 +6,17 @@ import PasswordIcon from '@mui/icons-material/Password';
 import Button from '@mui/material/Button';
 import ImageSection from '../components/ImageSection'
 import EmailIcon from '@mui/icons-material/Email';
-import useAuthStore from "../store/authStore";
-// import ReCAPTCHA from 'react-google-recaptcha';
-
 import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
-
-import {auth ,firestore} from '../firebase/firebase';
-import { useCreateUserWithEmailAndPassword } from 'react-firebase-hooks/auth';
-// import useSignUpWithEmailAndPassword from '../hooks/useSignUpWithEmailAndPassword';
-import { doc, setDoc, serverTimestamp, collection, query, where, getDocs } from 'firebase/firestore';
+import useSignup from '../hooks/useSignup';
 import CircularProgress from '@mui/material/CircularProgress';
-
-
-
 
 const Signup = () => {
   const [email , setEmail] = useState("");
   const [fname , setFname] = useState("");
-  const [password , setPassowrd] = useState("");
+  const [password , setPassword] = useState("");
   const [confpass , setConfpass ] = useState("");
-  const [createUserWithEmailAndPassword, user, loading, error] = useCreateUserWithEmailAndPassword(auth);
-  const loginUser = useAuthStore((state) => state.login);
-
-
+  const { loading, error, signup } = useSignup();
 
   const handleSubmit = async(e)=> {
     e.preventDefault()
@@ -37,47 +24,18 @@ const Signup = () => {
       toast.error("Fill all inputs");
       return;
     }
-    if (password.length<5){
-      toast.error("Password length should be atleat 5");
+    if (password.length<6){
+      toast.error("Password length should be at least 6 characters");
       return
     }
-    if (password != confpass) {
-      toast.error("passwords do not match")
+    if (password !== confpass) {
+      toast.error("Passwords do not match");
       return;
     }
 
-    try {
-      //check if email is already in use
-      const usersRef = collection(firestore, 'Users');
-      const q = query(usersRef, where('email', '==', email));
-      const querySnapshot = await getDocs(q);
-
-      if (!querySnapshot.empty) {
-        toast.error("Email already registered");
-        return;
-      }
-
-      const userCredential = await createUserWithEmailAndPassword(email, password);
-      if (userCredential) {
-        const user = userCredential.user;
-        await setDoc(doc(firestore, 'Users', user.uid), {
-          fullname: fname,
-          email: user.email,
-          createdAt: serverTimestamp(),
-          address: null,
-          books: []
-        });
-        localStorage.setItem("user-info", JSON.stringify(userCredential.user.uid));
-        loginUser(userCredential.user.uid);
-        toast.success("Account created");
-      }
-      else{toast.error("bad input data")}
-    } catch (error) {
-      console.error("Error signing up:", error);
-    }
-    
-    
+    await signup(email, fname, password);
   }
+
   return (
     <div className='flex flex-wrap h-[500px] w-[900px] rounded-xl bg-white shadow-[0_35px_60px_-15px_rgba(0,0,0,0.5)] '>
       <div id='form-control-section' className='flex flex-col w-[100%] h-[100%] rounded-xl sm:w-[50%]'>
@@ -98,7 +56,7 @@ const Signup = () => {
 
           <TextField id="outlined-basic2"  label="Full Name"
           value={fname}
-          onChange={(e)=>{setFname(e.target.value)}} 
+          onChange={(e)=>{setFname(e.target.value)}}
           InputProps={{
           startAdornment: (
             <InputAdornment position="start">
@@ -109,7 +67,7 @@ const Signup = () => {
 
           <TextField id="outlined-basic3"  label="password" type='password'
           value={password}
-          onChange={(e)=>{setPassowrd(e.target.value)}}
+          onChange={(e)=>{setPassword(e.target.value)}}
           InputProps={{
           startAdornment: (
             <InputAdornment position="start">
@@ -128,7 +86,7 @@ const Signup = () => {
             </InputAdornment>
           ),
         }} variant="outlined" sx={{mt:2 , width:"80%"}}/>
-          
+
           <Button variant="contained" type="submit" sx={{mt:1, width:"80%"}}>
           {loading ? <CircularProgress sx={{width: "10px"  , color:"white"}}/> : 'Create Account'}
           </Button>
@@ -142,7 +100,7 @@ const Signup = () => {
       <div id='image-container' className='w-[50%] rounded-tr-xl rounded-br-xl hidden sm:block '>
         <ImageSection/>
       </div>
-      
+
     </div>
   )
 }
