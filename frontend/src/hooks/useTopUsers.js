@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
+import { collection, getDocs } from 'firebase/firestore';
+import { firestore } from '../firebase/firebase'; // Import your Firebase setup
 
 const useTopUsers = () => {
   const [topUsers, setTopUsers] = useState([]);
@@ -9,38 +10,21 @@ const useTopUsers = () => {
   useEffect(() => {
     const fetchTopUsers = async () => {
       try {
-        const { data: booksData, error: booksError } = await supabase
-          .from('books')
-          .select('donor_id');
+        const usersCollection = collection(firestore, 'Users');
+        const querySnapshot = await getDocs(usersCollection);
 
-        if (booksError) throw booksError;
-
-        const donorCounts = {};
-        booksData.forEach(book => {
-          donorCounts[book.donor_id] = (donorCounts[book.donor_id] || 0) + 1;
-        });
-
-        const topDonorIds = Object.entries(donorCounts)
-          .sort((a, b) => b[1] - a[1])
-          .slice(0, 5)
-          .map(([id]) => id);
-
-        if (topDonorIds.length === 0) {
-          setTopUsers([]);
-          return;
-        }
-
-        const { data: usersData, error: usersError } = await supabase
-          .from('users')
-          .select('id, fullname')
-          .in('id', topDonorIds);
-
-        if (usersError) throw usersError;
-
-        const users = usersData.map(user => ({
-          fullname: user.fullname,
-          booksCount: donorCounts[user.id] || 0
-        })).sort((a, b) => b.booksCount - a.booksCount);
+        // Map through the documents to calculate the books count and sort them
+        const users = querySnapshot.docs
+          .map((doc) => {
+            const data = doc.data();
+            const booksCount = data.books ? data.books.length : 0; // Calculate books count
+            return {
+              fullname: data.fullname,
+              booksCount,
+            };
+          })
+          .sort((a, b) => b.booksCount - a.booksCount) // Sort by books count (descending)
+          .slice(0, 5); // Get the top 5 users
 
         setTopUsers(users);
       } catch (err) {

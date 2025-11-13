@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { supabase } from '../lib/supabase';
+import { collection, query, orderBy, limit, onSnapshot } from "firebase/firestore";
+import { firestore } from '../firebase/firebase'; // Adjust the path to your Firebase config
 import toast from "react-hot-toast";
 import { format } from 'date-fns';
 
@@ -8,46 +9,29 @@ const useNewestBooks = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchNewestBooks = async () => {
-            try {
-                const { data, error } = await supabase
-                    .from('books')
-                    .select('id, title, created_at')
-                    .order('created_at', { ascending: false })
-                    .limit(5);
+        // Define the query to get the newest 5 books based on createdAt timestamp
+        const q = query(
+            collection(firestore, "Books"),
+            orderBy("createdAt", "desc"),
+            limit(5)
+        );
 
-                if (error) throw error;
+        // Listen for real-time updates
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const books = snapshot.docs.map((doc) => ({
+                id: doc.id,
+                title: doc.data().title, // Only fetch the title
+                createdAt: format(doc.data().createdAt.toDate(), 'dd-MM-yyyy')
+            }));
+            setNewestBooks(books);
+            setLoading(false);
+        }, (error) => {
+            toast.error(`Failed to fetch newest books: ${error.message}`);
+            setLoading(false);
+        });
 
-                const books = data.map((book) => ({
-                    id: book.id,
-                    title: book.title,
-                    createdAt: format(new Date(book.created_at), 'dd-MM-yyyy')
-                }));
-
-                setNewestBooks(books);
-            } catch (error) {
-                toast.error(`Failed to fetch newest books: ${error.message}`);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchNewestBooks();
-
-        const channel = supabase
-            .channel('books-changes')
-            .on('postgres_changes', {
-                event: 'INSERT',
-                schema: 'public',
-                table: 'books'
-            }, () => {
-                fetchNewestBooks();
-            })
-            .subscribe();
-
-        return () => {
-            supabase.removeChannel(channel);
-        };
+        // Cleanup subscription on unmount
+        return () => unsubscribe();
     }, []);
 
     return { loading, newestBooks };

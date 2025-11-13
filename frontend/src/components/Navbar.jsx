@@ -16,9 +16,12 @@ import './Navbar.css'
 
 import { Menu, MenuItem, IconButton } from '@mui/material';
 
+import {firestore } from '../firebase/firebase';
 import {format } from 'date-fns';
 import useLogout from '../hooks/useLogout';
+
 import useAuthStore from "../store/authStore";
+import { doc} from 'firebase/firestore';
 import useUserData from '../hooks/useUserData';
 import useUpdateAddress from '../hooks/useUpdateAddress';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -97,13 +100,20 @@ const Navbar = () => {
   }
 
   const handleConfirmAddress = async()=>{
-    await updateAddress(address);
+    console.log(address)
+    const docRef = doc(firestore, 'Users', userUID);
+    updateAddress(address);
     handleClickSet()
+    // handleClose()
   }
 
   const formatDate = (timestamp) => {
     if (!timestamp) return 'N/A';
-    const date = new Date(timestamp);
+    
+    // Convert Firebase timestamp to JavaScript Date object
+    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+    
+    // Format date to dd-MM-yyyy
     return format(date, 'dd-MM-yyyy');
   };
 

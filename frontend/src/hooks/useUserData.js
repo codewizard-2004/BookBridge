@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
-import { supabase } from '../lib/supabase';
-import useAuthStore from "../store/authStore";
+import { doc, onSnapshot } from "firebase/firestore";
+import { firestore } from '../firebase/firebase'; // Adjust the path to your Firebase config
+import useAuthStore from "../store/authStore"; // Adjust the path to your zustand store
 
 const useUserData = () => {
   const userUID = useAuthStore((state) => state.user);
+  console.log("UserId"+userUID)
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -14,52 +16,29 @@ const useUserData = () => {
       return;
     }
 
-    const fetchUserData = async () => {
-      try {
-        const { data, error: fetchError } = await supabase
-          .from('users')
-          .select('*')
-          .eq('id', userUID)
-          .single();
+    const userDocRef = doc(firestore, "Users", userUID);
 
-        if (fetchError) throw fetchError;
-
-        const { data: booksData, error: booksError } = await supabase
-          .from('books')
-          .select('id')
-          .eq('donor_id', userUID);
-
-        if (booksError) throw booksError;
-
-        setUserData({
-          ...data,
-          books: booksData || []
-        });
-      } catch (err) {
-        setError(err.message);
-      } finally {
+    const unsubscribe = onSnapshot(
+      userDocRef,
+      (doc) => {
+        if (doc.exists()) {
+          setUserData(doc.data());
+          setLoading(false);
+        } else {
+          setError("No such user found.");
+          setLoading(false);
+        }
+      },
+      (err) => {
+        setError("Failed to fetch user data.");
+        console.error(err);
         setLoading(false);
       }
-    };
+    );
 
-    fetchUserData();
-
-    const channel = supabase
-      .channel('user-changes')
-      .on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'users',
-        filter: `id=eq.${userUID}`
-      }, () => {
-        fetchUserData();
-      })
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return () => unsubscribe();
   }, [userUID]);
+
 
   return { userData, loading, error };
 };

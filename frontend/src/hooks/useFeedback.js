@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { supabase } from '../lib/supabase';
-import useAuthStore from "../store/authStore";
+import { collection, addDoc, serverTimestamp , doc, updateDoc , arrayUnion} from "firebase/firestore";
+import { firestore } from '../firebase/firebase'; // Adjust the path to your Firebase config
+import useAuthStore from "../store/authStore"; 
 import toast from "react-hot-toast";
 
 const useFeedback = () => {
@@ -10,21 +11,18 @@ const useFeedback = () => {
     const createFeedback = async(feedback) => {
         setLoading(true);
         try {
-            const { error } = await supabase
-                .from('feedbacks')
-                .insert([
-                    {
-                        feedback: feedback,
-                        sender_id: userUID,
-                    }
-                ]);
+            const  feedbackData = {
+                feedback: feedback,
+                senderId: userUID,
+                createdAt: serverTimestamp()
+            };
 
-            if (error) throw error;
-
+            const docRef = await addDoc(collection(firestore , "Feedbacks"),feedbackData);
             toast.success("Thank you for your valuable feedback");
         } catch (error) {
             toast.error(error.message);
-        } finally {
+            
+        }finally{
             setLoading(false);
         }
     };
